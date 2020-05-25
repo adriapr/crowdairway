@@ -26,8 +26,9 @@ image_height = 500
 
 def get_df_processed():
     
-    df_truth=pd.read_csv('data/airways_ground_truth.csv')
     df_subjects = pd.read_csv('data/subjects.csv')
+    
+    df_truth=pd.read_csv('data_processed/airways_ground_truth.csv')
     df_tasks = pd.read_csv('data_processed/tasks.csv')
     df_res = pd.read_csv('data_processed/results.csv')
     df_annot = pd.read_csv('data_processed/annotations.csv')
@@ -51,13 +52,31 @@ def process_data():
     # Process results  
     print("Starting results...")
     
-    df_props = df_res.apply(lambda res: get_result_properties2(res, df_annot_ellipse), axis='columns', result_type='expand')
+    df_props = df_res.apply(lambda res: get_result_properties(res, df_annot_ellipse), axis='columns', result_type='expand')
     df_res_props = pd.concat([df_res,df_props],axis=1)
     
     df_annot_ellipse.to_csv('data_processed/annotations.csv', index=False, quoting=csv.QUOTE_NONNUMERIC)
     df_res_props.to_csv('data_processed/results.csv', index=False, quoting=csv.QUOTE_NONNUMERIC)
     df_task.to_csv('data_processed/tasks.csv', index=False, quoting=csv.QUOTE_NONNUMERIC)   
     
+    
+    df_truth=pd.read_csv('data/airways_ground_truth.csv')
+    df_truth['wap1'] = df_truth.apply(lambda row: compute_wap(row), axis=1)
+    df_truth['wtr1'] = df_truth.apply(lambda row: compute_wtr(row), axis=1)
+    df_truth.to_csv('data_processed/airways_ground_truth.csv', index=False, quoting=csv.QUOTE_NONNUMERIC)
+
+    
+
+
+# Compute wap and wtr for GT. This should probably be done somewhere else? Ans ussing apply()
+def area_to_diam(a): # This is approxiamte, assuming a circle
+  return np.sqrt(a * math.pi / 4)
+
+def compute_wap(row):
+  return (row['outer1'] - row['inner1']) / row['outer1'] * 100 # wall area percentage
+
+def compute_wtr(row):
+  return ((area_to_diam(row['outer1']) - area_to_diam(row['inner1'])) / 2) / area_to_diam(row['outer1']) # wall area percentage
     
 
 def get_df_crowd(results_file):
@@ -191,8 +210,10 @@ def get_ellipse_patch_vertices(annotation):
 
 # Calculate several properties of the result's annotations, to be able to later decide if the result is valid or not 
 
-def get_result_properties(annotations):
+def get_result_properties(res, df_annot):
 
+    annotations = df_annot.loc[df_annot['result_id'] == res['result_id']]
+    
     # Are ellipses inside each other?
     num_annot = len(annotations)
     annot_inside = np.zeros(num_annot)
@@ -225,11 +246,15 @@ def get_result_properties(annotations):
     if num_annot == 2:
         outer = annotations['area'].max()
         inner = annotations['area'].min()
+        wap = (outer - inner) / outer * 100 # wall area percentage
+        wtr = ((area_to_diam(outer) - area_to_diam(inner)) / 2) / area_to_diam(outer) # wall thickness ratio
     else:
         outer = np.nan
         inner = np.nan
+        wap = np.nan
+        wtr = np.nan
     
-    return pd.Series({'num_annot': num_annot,'inside': inside, 'resized': resized, 'outer': outer, 'inner': inner})
+    return pd.Series({'num_annot': num_annot,'inside': inside, 'resized': resized, 'outer': outer, 'inner': inner,  'wap': wap, 'wtr': wtr})
 
 
 

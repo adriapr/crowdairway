@@ -80,7 +80,7 @@ def print_result_stats(df_res_valid, df_res_invalid):
 
 
 
-def plot_results_per_worker(df_res):
+def plot_workers_vs_results(df_res):
     
     res = df_res['result_creator'].value_counts(ascending=True)
     
@@ -102,7 +102,7 @@ def plot_results_per_worker(df_res):
     
     
     
-def plot_valid_per_worker(df_res_valid, df_res_invalid):
+def scatter_valid_vs_invalid(df_res_valid, df_res_invalid):
     
         
     valid_per_worker=df_res_valid.groupby(['result_creator'], as_index=False).count().reset_index()
@@ -138,3 +138,64 @@ def plot_valid_per_worker(df_res_valid, df_res_invalid):
     plt.ylabel('Invalid results created')
     plt.legend(('fit to data', 'equal ratio', 'worker'))
     plt.show()
+    
+    
+    
+def scatter_corr_individual(df_res_valid):
+    # Plot expert 1 vs individual annotators, for all results
+    
+       
+    corr_inner = df_res_valid['inner1'].corr(df_res_valid['inner'])
+    corr_outer = df_res_valid['outer1'].corr(df_res_valid['outer'])
+    
+    corr_wap = df_res_valid['wap1'].corr(df_res_valid['wap'])
+    corr_wtr = df_res_valid['wtr1'].corr(df_res_valid['wtr'])
+    
+    
+    print('Inner individual: {:01.3f}'.format(corr_inner))
+    print('Outer individual: {:01.3f}'.format(corr_outer))
+    print('WAP individual: {:01.3f}'.format(corr_wap))
+    print('WTR individual: {:01.3f}'.format(corr_wtr))
+    
+    
+    fig, axes = plt.subplots(nrows=1, ncols=2)
+    
+    ax1 = df_res_valid.plot.scatter(ax=axes[0], x='inner1', y='inner')
+    ax1.set_xlabel('Expert 1')
+    ax1.set_ylabel('Crowd annotator')
+    ax1.set_title('Inner airway, corr={:01.3f}'.format(corr_inner))
+    ax1.axis('equal') #doesn't work?
+    
+    
+    ax2 = df_res_valid.plot.scatter(ax=axes[1], x='outer1',  y='outer')
+    ax2.set_xlabel('Expert 1')
+    ax2.set_ylabel('Crowd annotator')
+    ax2.set_title('Outer airway, corr={:01.3f}'.format(corr_outer)) #TODO OMG WHY does this print out an extra line <- probably because corr_outer is a list and not a scalar?
+    ax2.axis('equal')
+    ax2.set_aspect('equal', adjustable="datalim")
+    
+    fig.tight_layout()
+    fig.savefig('figures/scatter_corr_individual_areas.png')
+    
+    fig, axes = plt.subplots(nrows=1, ncols=2)
+    
+    ax1 = df_res_valid.plot.scatter(ax=axes[0], x='wap1',  y='wap')
+    ax1.set_xlabel('Expert 1')
+    ax1.set_ylabel('Crowd annotator')
+    ax1.set_title('Wall Area Percentage, corr={:01.3f}'.format(corr_wap)) #TODO OMG WHY does this print out an extra line
+    ax1.axis('equal')
+    ax1.set_aspect('equal', adjustable="datalim")
+    
+    ax2 = df_res_valid.plot.scatter(ax=axes[1], x='wtr1',  y='wtr')
+    ax2.set_xlabel('Expert 1')
+    ax2.set_ylabel('Crowd annotator')
+    ax2.set_title('Wall Thickness Ratio, corr={:01.3f}'.format(corr_wtr)) #TODO OMG WHY does this print out an extra line
+    ax2.axis('equal')
+    ax2.set_aspect('equal', adjustable="datalim")
+    
+    fig.tight_layout()
+    fig.savefig('figures/scatter_corr_individual_ratios.png')
+ 
+    
+    
+    
