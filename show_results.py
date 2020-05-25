@@ -18,11 +18,14 @@ from skimage import draw
 from parse import *
 
 
+
+import load_data as crowdload
+
 # Display an annotation - TODO fix duplication with show_result 
 def show_annotation(annotation):
     
     if annotation['centre_x'] == False:
-        annotation = add_ellipse(annotation)
+        annotation = crowdload.add_ellipse(annotation)
 
     ell_patch = Ellipse((annotation['centre_x'], annotation['centre_y']), 2*annotation['major_ax'], 2*annotation['minor_ax'], annotation['rotation'], edgecolor='red', facecolor='none')
 
@@ -43,7 +46,7 @@ def show_result(annotations):
 
     for (index,a) in annotations.iterrows():
     
-        ell_patch, vertices = get_ellipse(a)
+        ell_patch, vertices = crowdload.get_ellipse(a)
         
         ax.add_patch(ell_patch)
         plt.scatter(vertices[:,0], vertices[:,1])
