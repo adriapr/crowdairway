@@ -130,18 +130,11 @@ def scatter_worker_valid(df_res_valid, df_res_invalid):
     
     
     
-#TODO try to generalize the scatter_corr_ functions 
+    
 def scatter_correlation_expert_crowd(df_task, combine_type=''):
     
-    #Pass as a parameter
     #combine_type = 'median' ## '' for no combining, 'median', 'best'
-   
-    
-    #Should be outside this function
-    #minimum_results = 1
-    #df_task_median = df_task_median.loc[df_task_median['num_combined']>=minimum_results]
-   
-    
+       
     if combine_type != '':
         key = '_' + combine_type
     else:
@@ -195,13 +188,26 @@ def scatter_correlation_expert_crowd(df_task, combine_type=''):
 
 
 #TODO generalize this to any combining
-def plot_correlation_valid(df_task, df_res_valid, df_truth):
-    
-    #TODO this should be a choice, how to combine before this plot
-    df_task_median = crowdcombine.get_task_median(df_task, df_res_valid)
-    df_task_median = pd.merge(df_task_median, df_truth, on='task_id', how='outer')
+def plot_correlation_valid(df_task, df_res_valid, df_truth, combine_type=''):
     
     
+    if combine_type != '':
+        key = '_' + combine_type
+    else:
+        key = combine_type
+    
+    
+    if combine_type == '':
+        df_task = df_res_valid #Each result is seen as a task with 1 result
+        
+    elif combine_type == 'median':
+        df_task = crowdcombine.get_task_median(df_task, df_res_valid, df_truth)
+        df_task = pd.merge(df_task, df_truth, on='task_id', how='outer')
+    
+    elif combine_type == 'best':
+        df_task = crowdcombine.get_task_best(df_task, df_res_valid, df_truth)
+        df_task = pd.merge(df_task, df_truth, on='task_id', how='outer')
+        
     minimum_results = np.arange(1,11)
     n_min = len(minimum_results)
     corr_inner = np.zeros(n_min)
@@ -211,10 +217,10 @@ def plot_correlation_valid(df_task, df_res_valid, df_truth):
     
     for idx, m in enumerate(minimum_results):
     
-        df_task_subset = df_task_median.loc[df_task_median['num_combined']>=m]
+        df_task_subset = df_task.loc[df_task['num_combined']>=m]
     
-        corr_inner[idx] = df_task_subset['inner1'].corr(df_task_subset['inner_median'])
-        corr_outer[idx] = df_task_subset['outer1'].corr(df_task_subset['outer_median'])
+        corr_inner[idx] = df_task_subset['inner1'].corr(df_task_subset['inner' + key])
+        corr_outer[idx] = df_task_subset['outer1'].corr(df_task_subset['outer' + key])
         num_tasks[idx] = df_task_subset['task_id'].count()
             
     fig, ax1 = plt.subplots()
