@@ -15,8 +15,8 @@ import math
 from skimage import draw
 from parse import *
 
-import crowd_anotations_support.load_data as crowdload
-import crowd_anotations_support.show_results as crowdshow
+import crowdairway.load_data as crowdload
+import crowdairway.show_results as crowdshow
 
 #Maybe better name would be plot results? 
 

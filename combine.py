@@ -15,7 +15,7 @@ import math
 from skimage import draw
 from parse import *
 
-import crowd_anotations_support.load_data as crowdload
+import crowdairway.load_data as crowdload
 
 # Define how to combine multiple results per task 
 
