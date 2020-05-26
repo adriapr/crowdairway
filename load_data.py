@@ -36,6 +36,8 @@ file_annot = os.path.join(path_processed, 'annotations.csv')
 
 def get_df_processed():
     
+    print(file_subject)
+    
     df_subject = pd.read_csv(file_subject)
     
     df_truth=pd.read_csv(file_truth)
@@ -51,7 +53,7 @@ def get_df_processed():
 def process_data():
     #Load files
    
-    results_file = os.path.join(path_raw, '/crowd_results.json')
+    results_file = os.path.join(path_raw, 'crowd_results.json')
     df_task, df_res, df_annot = get_df_crowd(results_file)
             
     print("Starting annotations...")
