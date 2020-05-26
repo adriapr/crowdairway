@@ -202,12 +202,12 @@ def plot_correlation_valid(df_task, df_res_valid, df_truth, combine_type=''):
         
     elif combine_type == 'median':
         df_task = crowdcombine.get_task_median(df_task, df_res_valid, df_truth)
-        df_task = pd.merge(df_task, df_truth, on='task_id', how='outer')
     
     elif combine_type == 'best':
         df_task = crowdcombine.get_task_best(df_task, df_res_valid, df_truth)
-        df_task = pd.merge(df_task, df_truth, on='task_id', how='outer')
         
+    print(df_task.head())
+    
     minimum_results = np.arange(1,11)
     n_min = len(minimum_results)
     corr_inner = np.zeros(n_min)
