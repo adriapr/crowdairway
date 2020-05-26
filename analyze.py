@@ -16,7 +16,6 @@ from skimage import draw
 from parse import *
 
 import crowdairway.load_data as crowdload
-import crowdairway.show_results as crowdshow
 
 #Maybe better name would be plot results? 
 
