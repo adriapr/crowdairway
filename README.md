@@ -8,7 +8,14 @@ The study investigates whether annotators from Amazon Mechanical Turk are able t
 * Ground truth area measurements of airways made by experts
 * Airway coordinates made by crowd annotators 
 
-# Files
+# Notebook (Google Colaboratory) 
+
+https://colab.research.google.com/drive/1Bnwg3tg5JNJCpUcOhN6h0FJfZ_Cdb9Uc#scrollTo=UGvdEkkQHNI9
+
+Use this to load the processed data and plot different types of results (including results not shown in the paper)
+
+
+# Code (this repository)
 
 * main.py - main script that loads the data and creates the results
 * load_data.py - functions for loading and preprocessing the data
