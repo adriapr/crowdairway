@@ -26,7 +26,7 @@ image_height = 500
 path_raw = os.path.join('crowdairway', 'data')
 path_processed = os.path.join('crowdairway', 'data_processed')
 
-file_subject = os.path.join(path_processed, 'subjects.csv')
+file_subject = os.path.join(path_raw, 'subjects.csv')
 file_truth = os.path.join(path_processed, 'airways_ground_truth.csv')
 file_task = os.path.join(path_processed, 'tasks.csv')
 file_res = os.path.join(path_processed, 'results.csv')
