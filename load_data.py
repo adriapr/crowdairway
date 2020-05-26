@@ -17,24 +17,33 @@ import math
 from skimage import draw
 from parse import search
 
+import os.path
 
 # Define some constants
 image_width = 500
 image_height = 500
 
+path_raw = os.path.join('crowd_anotations_support', 'data')
+path_processed = os.path.join('crowd_anotations_support', 'data_processed')
+
+file_subject = os.path.join(path_processed, 'subjects.csv')
+file_truth = os.path.join(path_processed, 'airways_ground_truth.csv')
+file_task = os.path.join(path_processed, 'tasks.csv')
+file_res = os.path.join(path_processed, 'results.csv')
+file_annot = os.path.join(path_processed, 'annotations.csv')
+
 
 
 def get_df_processed():
     
-    df_subjects = pd.read_csv('data/subjects.csv')
+    df_subject = pd.read_csv(file_subject)
     
-    df_truth=pd.read_csv('data_processed/airways_ground_truth.csv')
-    df_tasks = pd.read_csv('data_processed/tasks.csv')
-    df_res = pd.read_csv('data_processed/results.csv')
-    df_annot = pd.read_csv('data_processed/annotations.csv')
-    
-    
-    return df_tasks, df_res, df_annot, df_truth, df_subjects
+    df_truth=pd.read_csv(file_truth)
+    df_task = pd.read_csv(file_task)
+    df_res = pd.read_csv(file_res)
+    df_annot = pd.read_csv(file_annot)
+        
+    return df_task, df_res, df_annot, df_truth, df_subject
     
     
 
@@ -42,7 +51,7 @@ def get_df_processed():
 def process_data():
     #Load files
    
-    results_file = 'data/crowd_results.json'
+    results_file = os.path.join(path_raw, '/crowd_results.json')
     df_task, df_res, df_annot = get_df_crowd(results_file)
             
     print("Starting annotations...")
@@ -55,15 +64,17 @@ def process_data():
     df_props = df_res.apply(lambda res: get_result_properties(res, df_annot_ellipse), axis='columns', result_type='expand')
     df_res_props = pd.concat([df_res,df_props],axis=1)
     
-    df_annot_ellipse.to_csv('data_processed/annotations.csv', index=False, quoting=csv.QUOTE_NONNUMERIC)
-    df_res_props.to_csv('data_processed/results.csv', index=False, quoting=csv.QUOTE_NONNUMERIC)
-    df_task.to_csv('data_processed/tasks.csv', index=False, quoting=csv.QUOTE_NONNUMERIC)   
     
-    
-    df_truth=pd.read_csv('data/airways_ground_truth.csv')
+    df_truth=pd.read_csv(os.path.join(path_raw, 'airways_ground_truth.csv'))
     df_truth['wap1'] = df_truth.apply(lambda row: compute_wap(row), axis=1)
     df_truth['wtr1'] = df_truth.apply(lambda row: compute_wtr(row), axis=1)
-    df_truth.to_csv('data_processed/airways_ground_truth.csv', index=False, quoting=csv.QUOTE_NONNUMERIC)
+    
+    
+    #Write processed files to CSV
+    df_annot_ellipse.to_csv(file_annot, index=False, quoting=csv.QUOTE_NONNUMERIC)
+    df_res_props.to_csv(file_res, index=False, quoting=csv.QUOTE_NONNUMERIC)
+    df_task.to_csv(file_task, index=False, quoting=csv.QUOTE_NONNUMERIC)   
+    df_truth.to_csv(file_truth, index=False, quoting=csv.QUOTE_NONNUMERIC)
 
     
 
