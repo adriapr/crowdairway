@@ -191,23 +191,17 @@ def scatter_correlation_expert_crowd(df_task, combine_type=''):
 def plot_correlation_valid(df_task, df_res_valid, df_truth, combine_type=''):
     
     
-    if combine_type != '':
-        key = '_' + combine_type
-    else:
-        key = combine_type
-    
-    
-    if combine_type == '':
-        df_task = df_res_valid #Each result is seen as a task with 1 result
-        
-    elif combine_type == 'median':
+    if combine_type == 'median':
         df_task = crowdcombine.get_task_median(df_task, df_res_valid, df_truth)
     
     elif combine_type == 'best':
         df_task = crowdcombine.get_task_best(df_task, df_res_valid, df_truth)
-        
-    print(df_task.head())
+    else:
+        print('No such combine type')
+            
     
+    key = '_' + combine_type
+        
     minimum_results = np.arange(1,11)
     n_min = len(minimum_results)
     corr_inner = np.zeros(n_min)
