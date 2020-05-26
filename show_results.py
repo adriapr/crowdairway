@@ -19,7 +19,7 @@ from parse import *
 
 
 
-import load_data as crowdload
+import crowd_anotations_support.load_data as crowdload
 
 # Display an annotation - TODO fix duplication with show_result 
 def show_annotation(annotation):
