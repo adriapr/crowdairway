@@ -8,19 +8,19 @@ Created on Thu May 14 18:16:34 2020
 import pandas as pd
 import numpy as np
 
-from matplotlib.patches import Ellipse
 import matplotlib.pyplot as plt
-import math
 
-from skimage import draw
-from parse import *
-
-import crowdairway.load_data as crowdload
-
-#Maybe better name would be plot results? 
+import os.path
 
 
-def print_result_stats(df_res_valid, df_res_invalid):
+import crowdairway.combine as crowdcombine
+
+
+fig_path = os.path.join('crowdairway', 'figures')
+
+
+
+def print_result(df_res_valid, df_res_invalid):
     
     
     num_valid = df_res_valid['result_id'].count()
@@ -62,17 +62,24 @@ def print_result_stats(df_res_valid, df_res_invalid):
 
 
 
-def plot_workers_vs_results(df_res):
-    
-    res = df_res['result_creator'].value_counts(ascending=True)
-    
+
+def print_worker(df_res):
     res_per_worker=df_res.groupby(['result_creator']).count()[['result_id']]
     
-    print('Total workers: ' + str(res_per_worker.count()))
+    res = df_res['result_creator'].value_counts(ascending=True)
+        
     
+    print('Total workers: ' + str(res_per_worker.count()))
     print('Minimum results per worker: ' + str(res.min()))
     print('Maximum results per worker: ' + str(res.max()))
     
+    
+
+
+def plot_result_worker(df_res):
+    
+    res = df_res['result_creator'].value_counts(ascending=True)
+        
     x = np.arange(1,len(res))
     y =  np.cumsum(res)
     plt.plot(x, y[:-1])
@@ -84,7 +91,7 @@ def plot_workers_vs_results(df_res):
     
     
     
-def scatter_valid_vs_invalid(df_res_valid, df_res_invalid):
+def scatter_worker_valid(df_res_valid, df_res_invalid):
     
         
     valid_per_worker=df_res_valid.groupby(['result_creator'], as_index=False).count().reset_index()
@@ -124,7 +131,7 @@ def scatter_valid_vs_invalid(df_res_valid, df_res_invalid):
     
     
 #TODO try to generalize the scatter_corr_ functions 
-def scatter_corr(df_task, combine_type=''):
+def scatter_correlation_expert_crowd(df_task, combine_type=''):
     
     #Pass as a parameter
     #combine_type = 'median' ## '' for no combining, 'median', 'best'
@@ -162,7 +169,8 @@ def scatter_corr(df_task, combine_type=''):
     ax1.set_title('Outer airway, corr={:01.3f}'.format(corr_outer))
     
     fig.tight_layout()
-    fig.savefig('figures/scatter_corr' + key + '_areas.png')
+    fig.savefig(os.path.join(fig_path, 'scatter_correlation' + key + '_areas.png'))
+ 
     
     # Plot the ratios
     fig, axes = plt.subplots(nrows=1, ncols=2)
@@ -182,14 +190,14 @@ def scatter_corr(df_task, combine_type=''):
     ax2.set_aspect('equal', adjustable="datalim")
     
     fig.tight_layout()
-    fig.savefig('figures/scatter_corr' + key + '_ratios.png')
+    fig.savefig(os.path.join(fig_path, 'scatter_correlation' + key + '_ratios.png'))
  
 
 
 #TODO generalize this to any combining
-def plot_correlation_vs_minvalid(df_task, df_res_valid, df_truth):
+def plot_correlation_valid(df_task, df_res_valid, df_truth):
     
-    #TODO this should be a choice, how to combind before this plot
+    #TODO this should be a choice, how to combine before this plot
     df_task_median = crowdcombine.get_task_median(df_task, df_res_valid)
     df_task_median = pd.merge(df_task_median, df_truth, on='task_id', how='outer')
     
@@ -208,14 +216,7 @@ def plot_correlation_vs_minvalid(df_task, df_res_valid, df_truth):
         corr_inner[idx] = df_task_subset['inner1'].corr(df_task_subset['inner_median'])
         corr_outer[idx] = df_task_subset['outer1'].corr(df_task_subset['outer_median'])
         num_tasks[idx] = df_task_subset['task_id'].count()
-        
-    
-    #print(corr_inner[-1])
-    #print(corr_outer[-1])
-    
-    #print(num_tasks[0])
-    #print(num_tasks[-1])
-    
+            
     fig, ax1 = plt.subplots()
     
     color = 'tab:red'
@@ -235,11 +236,12 @@ def plot_correlation_vs_minvalid(df_task, df_res_valid, df_truth):
     ax2.legend() #TODO combine legend
     
     fig.tight_layout() 
-    fig.savefig('figures/plot_correlation_minvalid.png')
+    fig.savefig(os.path.join(fig_path, 'plot_correlation_valid.png'))
+    
     
     
 #TODO generalize this
-def scatter_subjects(df_subject, df_task, df_res_valid):
+def scatter_subject_correlation(df_subject, df_task, df_res_valid):
        
     # TODO - correlation per subject - are some subjects more difficult than others? 
     # Are there differences between CF and non CF? 
@@ -281,7 +283,7 @@ def scatter_subjects(df_subject, df_task, df_res_valid):
     plt.show()
     
     fig.tight_layout()
-    fig.savefig('figures/scatter_subjects_fev.png')
+    fig.savefig(os.path.join(fig_path, 'scatter_subject_correlation.png'))
     
     
     #Now the same thing but visualize number of valid results

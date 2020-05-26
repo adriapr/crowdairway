@@ -41,9 +41,11 @@ def main():
     df_res_valid, df_res_invalid = crowdcombine.get_valid_results(df_res,df_truth)
     
     # How many results are there? How many are valid? 
-    #crowdanalyze.print_result_stats(df_res_valid, df_res_invalid)
-    #crowdanalyze.plot_workers_vs_results(df_res_valid)
-    #crowdanalyze.scatter_valid_vs_invalid(df_res_valid, df_res_invalid)
+    crowdanalyze.print_result(df_res_valid, df_res_invalid)
+    
+    crowdanalyze.plot_worker_result(df_res_valid)
+    
+    crowdanalyze.scatter_worker_valid(df_res_valid, df_res_invalid)
 
 
     #Combine results in different ways and compare to expert
@@ -52,7 +54,7 @@ def main():
     #df_task_best = crowdcombine.get_task_best(df_task, df_res_valid, df_truth) #Bug in get_task_best
         
     # Scatter individual results without combining
-    crowdanalyze.scatter_corr(df_res_valid)
+    crowdanalyze.scatter_correlation(df_res_valid)
     
     # Scatter combined results
     crowdanalyze.scatter_corr(df_task_median, 'median')
