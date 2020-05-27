@@ -38,11 +38,11 @@ def main():
     df_res_valid, df_res_invalid = crowdcombine.get_valid_results(df_res,df_truth)
     
     # How many results are there? How many are valid? 
-    crowdanalyze.print_result(df_res_valid, df_res_invalid)
+    #crowdanalyze.print_result(df_res_valid, df_res_invalid)
     
-    crowdanalyze.plot_worker_result(df_res_valid)
+    #crowdanalyze.plot_worker_result(df_res_valid)
     
-    crowdanalyze.scatter_worker_valid(df_res_valid, df_res_invalid)
+    #crowdanalyze.scatter_worker_valid(df_res_valid, df_res_invalid)
 
 
     #Combine results in different ways and compare to expert
@@ -51,14 +51,18 @@ def main():
     #df_task_best = crowdcombine.get_task_best(df_task, df_res_valid, df_truth) #Bug in get_task_best
         
     # Scatter individual results without combining
-    crowdanalyze.scatter_correlation(df_res_valid)
+    #crowdanalyze.scatter_correlation_expert_crowd(df_res_valid)
+    
+    
+    df_corr = crowdanalyze.get_subject_correlation(df_subject, df_task, df_res_valid)
+    print(df_corr.head())
     
     # Scatter combined results
-    crowdanalyze.scatter_corr(df_task_median, 'median')
+   # crowdanalyze.scatter_correlation_expert_crowd(df_task_median, 'median')
     #crowdanalyze.scatter_corr(df_task_best, 'best')     
     
     # Scatter subjects, do the correlations depend on something?
-    crowdanalyze.scatter_subjects(df_subject, df_task, df_res_valid)
+    crowdanalyze.scatter_subject_correlation(df_subject, df_task, df_res_valid)
     
     
     

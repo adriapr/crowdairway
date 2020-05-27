@@ -148,42 +148,43 @@ def scatter_correlation_expert_crowd(df_task, combine_type=''):
     
         
     # Plot the areas
-    fig, axes = plt.subplots(nrows=1, ncols=2)
+    fig, axes = plt.subplots(nrows=2, ncols=2)
     
-    ax0 = df_task.plot.scatter(ax=axes[0], x='inner1', y='inner'+key)
+    print(axes.shape)
+    
+    ax0 = df_task.plot.scatter(ax=axes[0][0], x='inner1', y='inner'+key)
     ax0.set_xlabel('Expert 1')
     ax0.set_ylabel('Crowd, ' + combine_type)  
     ax0.set_title('Inner airway, corr={:01.3f}'.format(corr_inner))
-    #ax0.axis('equal') #Doesn't work
+    ax0.axis('equal')
+    ax0.set_aspect('equal', adjustable="datalim")
     
-    ax1 = df_task.plot.scatter(ax=axes[1], x='outer1', y='outer'+key)
+      
+    
+    ax1 = df_task.plot.scatter(ax=axes[0][1], x='outer1', y='outer'+key)
     ax1.set_xlabel('Expert 1')
     ax1.set_ylabel('Crowd, ' + combine_type)  
     ax1.set_title('Outer airway, corr={:01.3f}'.format(corr_outer))
-    
-    fig.tight_layout()
-    fig.savefig(os.path.join(fig_path, 'scatter_correlation' + key + '_areas.png'))
- 
-    
-    # Plot the ratios
-    fig, axes = plt.subplots(nrows=1, ncols=2)
-    
-    ax1 = df_task.plot.scatter(ax=axes[0], x='wap1',  y='wap'+key)
-    ax1.set_xlabel('Expert 1')
-    ax1.set_ylabel('Crowd, ' + combine_type)  
-    ax1.set_title('Wall Area Percentage, corr={:01.3f}'.format(corr_wap)) #TODO OMG WHY does this print out an extra line
     ax1.axis('equal')
     ax1.set_aspect('equal', adjustable="datalim")
     
-    ax2 = df_task.plot.scatter(ax=axes[1], x='wtr1',  y='wtr'+key)
+      
+    ax2 = df_task.plot.scatter(ax=axes[1][0], x='wap1',  y='wap'+key)
     ax2.set_xlabel('Expert 1')
     ax2.set_ylabel('Crowd, ' + combine_type)  
-    ax2.set_title('Wall Thickness Ratio, corr={:01.3f}'.format(corr_wtr)) #TODO OMG WHY does this print out an extra line
+    ax2.set_title('WAP, corr={:01.3f}'.format(corr_wap)) #TODO OMG WHY does this print out an extra line
     ax2.axis('equal')
     ax2.set_aspect('equal', adjustable="datalim")
     
+    ax3 = df_task.plot.scatter(ax=axes[1][1], x='wtr1',  y='wtr'+key)
+    ax3.set_xlabel('Expert 1')
+    ax3.set_ylabel('Crowd, ' + combine_type)  
+    ax3.set_title('WTR, corr={:01.3f}'.format(corr_wtr)) #TODO OMG WHY does this print out an extra line
+    ax3.axis('equal')
+    ax3.set_aspect('equal', adjustable="datalim")
+    
     fig.tight_layout()
-    fig.savefig(os.path.join(fig_path, 'scatter_correlation' + key + '_ratios.png'))
+    fig.savefig(os.path.join(fig_path, 'scatter_correlation' + key + '.png'))
  
 
 
@@ -238,6 +239,37 @@ def plot_correlation_valid(df_task, df_res_valid, df_truth, combine_type=''):
     fig.tight_layout() 
     fig.savefig(os.path.join(fig_path, 'plot_correlation_valid.png'))
     
+
+
+def get_subject_correlation(df_subject, df_task, df_res_valid):
+
+    subject_ids = df_task['subject_id'].unique()
+    corr_list = []
+    
+    for idx, subject_id in enumerate(subject_ids):
+    
+        subject_results = df_res_valid.loc[df_res_valid['subject_id'] == subject_id]
+    
+        n = len(subject_results['subject_id'])
+        inner1_inner = subject_results['inner1'].corr(subject_results['inner'])
+        outer1_outer = subject_results['outer1'].corr(subject_results['outer'])
+        wap1_wap = subject_results['wap1'].corr(subject_results['wap'])
+        wtr1_wtr = subject_results['wtr1'].corr(subject_results['wtr'])
+        
+    
+        corr_dict = {
+            'n': n,
+            'subject_id': subject_id,
+            'inner1_inner': inner1_inner,
+            'outer1_outer': outer1_outer,
+            'wap1_wap': outer1_outer,
+            'wtr1_wtr': outer1_outer,
+            }
+        corr_list.append(corr_dict)  
+     
+    df_corr = pd.DataFrame(corr_list)
+    
+    return df_corr
     
     
 #TODO generalize this
@@ -246,25 +278,16 @@ def scatter_subject_correlation(df_subject, df_task, df_res_valid):
     # TODO - correlation per subject - are some subjects more difficult than others? 
     # Are there differences between CF and non CF? 
     
-    subject_ids = df_task['subject_id'].unique()
-    num_subjects = len(subject_ids)
     
-    corr_inner = np.zeros(num_subjects)
-    corr_outer = np.zeros(num_subjects)
-    num_res = np.zeros(num_subjects)
+    df_corr = get_subject_correlation(df_subject, df_task, df_res_valid)
+    corr_inner = df_corr['inner1_inner'].to_numpy()
+    corr_outer = df_corr['outer1_outer'].to_numpy()
     
     
-    for idx, subject_id in enumerate(subject_ids):
-          
-            subject_results = df_res_valid.loc[df_res_valid['subject_id'] == subject_id]
-    
-            corr_inner[idx] = subject_results['inner1'].corr(subject_results['inner'])
-            corr_outer[idx] = subject_results['outer1'].corr(subject_results['outer'])
-            
-            num_res[idx] = len(subject_results['outer1'])
- 
     
     #Different variables related to the subjects, that we can display in the plot
+   
+    id = df_subject['subject_id'].to_numpy()
     has_cf = df_subject['has_cf'].to_numpy()
     fev = df_subject['FEV1_ppred'].to_numpy()
     fvc= df_subject['FVC1_ppred'].to_numpy()
@@ -274,28 +297,22 @@ def scatter_subject_correlation(df_subject, df_task, df_res_valid):
     plt.scatter(corr_inner[has_cf==1],corr_outer[has_cf==1], edgecolor='red', facecolor='none', s=fev[has_cf==1])
     plt.scatter(corr_inner[has_cf==0],corr_outer[has_cf==0], edgecolor='blue', facecolor='none', s=fev[has_cf==0])
     
+ 
     
-    for idx, subject_id in enumerate(subject_ids):
-        plt.annotate(subject_id, (corr_inner[idx]+0.01, corr_outer[idx]-0.02))
+     #ax = df_corr.plot.scatter(x='inner1_inner',  y='outer1_outer')
+    
+#
+    #TODO this is out of order now 
+    #for idx, subject_id in enumerate(id):
+    #    plt.annotate(subject_id, (corr_inner[idx]+0.01, corr_outer[idx]-0.02))
     
     plt.xlabel('Correlation with expert, inner')
     plt.ylabel('Correlation with expert, outer')
+    plt.legend('CF', 'no CF')
     plt.show()
     
     fig.tight_layout()
     fig.savefig(os.path.join(fig_path, 'scatter_subject_correlation.png'))
     
     
-    #Now the same thing but visualize number of valid results
-    #fig = plt.figure()
-    #plt.scatter(corr_inner[has_cf==1],corr_outer[has_cf==1], edgecolor='red', facecolor='none', s=num_res[has_cf==1])
-    #plt.scatter(corr_inner[has_cf==0],corr_outer[has_cf==0], edgecolor='blue', facecolor='none', s=num_res[has_cf==0])
-    
-    
-    #plt.xlabel('Correlation with expert, inner')
-    #plt.ylabel('Correlation with expert, outer')
-    #plt.show()
-    
-    #fig.tight_layout()
-    #fig.savefig('scatter_correlation_num_res.png')
 

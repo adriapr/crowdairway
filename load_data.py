@@ -36,8 +36,6 @@ file_annot = os.path.join(path_processed, 'annotations.csv')
 
 def get_df_processed():
     
-    print(file_subject)
-    
     df_subject = pd.read_csv(file_subject)
     
     df_truth=pd.read_csv(file_truth)
