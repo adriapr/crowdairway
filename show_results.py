@@ -5,8 +5,6 @@ Created on Wed May 13 13:22:02 2020
 @author: vcheplyg
 """
 
-#import gdown
-import json, csv
 import pandas as pd
 import numpy as np
 
@@ -19,7 +17,7 @@ from parse import *
 
 
 
-import crowd_anotations_support.load_data as crowdload
+import load_data as crowdload
 
 # Display an annotation - TODO fix duplication with show_result 
 def show_annotation(annotation):

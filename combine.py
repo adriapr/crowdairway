@@ -15,7 +15,7 @@ import math
 from skimage import draw
 from parse import *
 
-import crowdairway.load_data as crowdload
+import load_data as crowdload
 
 # Define how to combine multiple results per task 
 
@@ -54,8 +54,7 @@ def get_task_median(df_task, df_res, df_truth):
                     'num_combined': len(task_results),
                     'outer_median': outer_median,
                     'inner_median': inner_median,
-                    'wap_median': (outer_median - inner_median) / outer_median * 100,
-                     # TODO: We should not be calling a function in the middle of nowhere (area_to_diam), which at the moment is defined multiple times
+                    'wap_median': (outer_median - inner_median) / outer_median * 100, #TODO fix duplication with crowdload
                     'wtr_median': ((crowdload.area_to_diam(outer_median) - crowdload.area_to_diam(inner_median)) / 2) / crowdload.area_to_diam(outer_median),
                     }
         task_list.append(task_dict)
@@ -79,13 +78,14 @@ def get_task_best(df_task, df_res_valid, df_truth):
       
         task_results = df_res_valid.loc[df_res_valid['task_id'] == task_id]
        
-        truth_diff = np.abs(task_results['outer'] - task_results['outer1']) 
+        truth_diff = np.abs(task_results['outer'] - task_results['outer1']) #Assumption - selecting based on outer, but could be one of the others
 
         ix_res_best = np.argmin(truth_diff) 
         res_best = task_results.iloc[ix_res_best]
      
         task_dict = {
                     'task_id':      task_id,
+                    'num_combined': 1,    #For consistency
                     'outer_best':   res_best['outer'],
                     'inner_best':   res_best['inner'],
                     'wap_best': (res_best['outer'] - res_best['inner']) / res_best['outer'] * 100,

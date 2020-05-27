@@ -13,10 +13,10 @@ import matplotlib.pyplot as plt
 import os.path
 
 
-import crowdairway.combine as crowdcombine
+import combine as crowdcombine
 
 
-fig_path = os.path.join('crowdairway', 'figures')
+fig_path ='figures'
 
 
 

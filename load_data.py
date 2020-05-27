@@ -23,8 +23,8 @@ import os.path
 image_width = 500
 image_height = 500
 
-path_raw = os.path.join('crowdairway', 'data')
-path_processed = os.path.join('crowdairway', 'data_processed')
+path_raw = 'data'
+path_processed = 'data_processed'
 
 file_subject = os.path.join(path_raw, 'subjects.csv')
 file_truth = os.path.join(path_processed, 'airways_ground_truth.csv')
