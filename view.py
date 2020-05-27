@@ -27,7 +27,7 @@ def show_task(task_id, df_task):
     #Select corresponding task from data frame
     df = df_task.loc[df_task['task_id'] == task_id]
        
-    subject_id = df['subject_id'][0]  #So ugly .. also need to handle what happens if task_id doesn't exist
+    subject_id = df['subject_id'][0]  #TODO also need to handle what happens if task_id doesn't exist
     airway_id =  df['airway_id'][0]
     
     
@@ -41,49 +41,31 @@ def show_task(task_id, df_task):
             plt.title('task {}, subject {}, airway {}'.format(task_id, subject_id, airway_id))
       
 
+
 # Show all annotations of the same result
 def show_result(result_id, df_task, df_res, df_annot):
 
     #Select corresponding result
     res = df_res.loc[df_res['result_id'] == result_id].reset_index()
-    
-     
+         
     #Get result details and annotations
     task_id = res['task_id'][0]
     annot = df_annot.loc[df_annot['result_id'] == result_id]
     
-    print(annot.head())
     
     #Display everything
-    plt.figure()
+    ax = plt.gca()  
     
     show_task(task_id, df_task)
     
-    ax = plt.gca()
 
     for (index,a) in annot.iterrows():
     
         ell_patch, vertices = crowdload.get_ellipse_patch_vertices(a)
-        
+        ell_patch.set_edgecolor('#6699FF')
+        ell_patch.set_linewidth(3)
         ax.add_patch(ell_patch)
-        #plt.scatter(vertices[:,0], vertices[:,1])
-
+        
     plt.xlabel('result {}'.format(result_id))
     plt.show()
-        
-    
-
-def show_annotation(annotation):
-    
-    if annotation['centre_x'] == False:
-        annotation = crowdload.add_ellipse(annotation)
-
-    ell_patch = Ellipse((annotation['centre_x'], annotation['centre_y']), 2*annotation['major_ax'], 2*annotation['minor_ax'], annotation['rotation'], edgecolor='red', facecolor='none')
-
-
-    plt.figure()
-    ax = plt.gca()
-    ax.add_patch(ell_patch)
-
-    plt.axis('equal')
-    plt.show()
+      
