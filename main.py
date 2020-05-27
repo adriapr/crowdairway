@@ -5,8 +5,6 @@ Created on Wed May 13 11:47:40 2020
 @author: vcheplyg
 """
 
-#import gdown
-import json, csv
 import pandas as pd
 import numpy as np
 
@@ -19,7 +17,6 @@ from parse import *
 
 import load_data as crowdload
 
-import show_results as crowdshow
 
 
 import analyze as crowdanalyze
