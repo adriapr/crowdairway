@@ -50,6 +50,18 @@ def main():
     crowdanalyze.scatter_correlation_expert_crowd(df_task_best, df_truth, 'best')
 
 
+    #Correlation vs minimum number of available valid results 
+    df_task_random = crowdcombine.get_task_random(df_task, df_res_valid)
+    crowdanalyze.plot_correlation_valid(df_task_random, df_truth, 'random')
+    
+    df_task_median = crowdcombine.get_task_median(df_task, df_res_valid)
+    crowdanalyze.plot_correlation_valid(df_task_median, df_truth, 'median')
+    
+    
+    df_task_best = crowdcombine.get_task_best(df_task, df_res_valid, df_truth)
+    crowdanalyze.plot_correlation_valid(df_task_best, df_truth, 'best')
+    
+    
 
 #Development
 def temp():
@@ -60,8 +72,17 @@ def temp():
     # Select valid results and analyze their statistics
     df_res_valid, df_res_invalid = crowdcombine.get_valid_results(df_res)
     
-    #df_task_best = crowdcombine.get_task_best(df_task, df_res_valid, df_truth) 
-    #crowdanalyze.scatter_correlation_expert_crowd(df_task_best, df_truth, 'best')
+    
+    
+    df_task_random = crowdcombine.get_task_random(df_task, df_res_valid)
+    crowdanalyze.plot_correlation_valid(df_task_random, df_truth, 'random')
+    
+    df_task_median = crowdcombine.get_task_median(df_task, df_res_valid)
+    crowdanalyze.plot_correlation_valid(df_task_median, df_truth, 'median')
+    
+    
+    df_task_best = crowdcombine.get_task_best(df_task, df_res_valid, df_truth)
+    crowdanalyze.plot_correlation_valid(df_task_best, df_truth, 'best')
 
     
     

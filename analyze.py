@@ -184,8 +184,10 @@ def scatter_correlation_expert_crowd(df_task_combined, df_truth, combine_type):
 
 
 #Plot the correlation against mininum number of valid results for each task
-def plot_correlation_valid(df_task_combined, df_truth, combine_type=''):
+def plot_correlation_valid(df_task_combined, df_truth, combine_type):
        
+    
+    df_task_combined = pd.merge(df_task_combined, df_truth, on='task_id', how='outer')
     
     key = '_' + combine_type
         
@@ -223,7 +225,7 @@ def plot_correlation_valid(df_task_combined, df_truth, combine_type=''):
     ax2.legend() #TODO combine legend
     
     fig.tight_layout() 
-    fig.savefig(os.path.join(fig_path, 'plot_correlation_valid.png'))
+    fig.savefig(os.path.join(fig_path, 'plot_correlation_valid' + key + '.png'))
     
 
 

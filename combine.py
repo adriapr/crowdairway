@@ -49,7 +49,7 @@ def get_task_random(df_task, df_res):
                 
         if len(task_results)>0:
             res_random = task_results.sample(random_state=task_id) #For reproducibility 
-            num_combined = 1
+            num_combined = len(task_results)
             outer_random = res_random['outer'].to_numpy()[0]
             inner_random = res_random['inner'].to_numpy()[0]
             wap_random = crowdload.compute_wap(inner_random,outer_random) 
