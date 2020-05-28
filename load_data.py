@@ -66,8 +66,8 @@ def process_data():
     
     
     df_truth=pd.read_csv(os.path.join(path_raw, 'airways_ground_truth.csv'))
-    df_truth['wap1'] = df_truth.apply(lambda row: compute_wap(row), axis=1)
-    df_truth['wtr1'] = df_truth.apply(lambda row: compute_wtr(row), axis=1)
+    df_truth['wap1'] = df_truth.apply(lambda row: compute_wap(row['inner1'], row['outer1']), axis=1)
+    df_truth['wtr1'] = df_truth.apply(lambda row: compute_wtr(row['inner1'], row['outer1']), axis=1)
     
     
     #Write processed files to CSV
@@ -83,11 +83,11 @@ def process_data():
 def area_to_diam(a): # This is approxiamte, assuming a circle
   return np.sqrt(a * math.pi / 4)
 
-def compute_wap(row):
-  return (row['outer1'] - row['inner1']) / row['outer1'] * 100 # wall area percentage
+def compute_wap(inner, outer):
+  return (outer - inner) / outer * 100 # wall area percentage
 
-def compute_wtr(row):
-  return ((area_to_diam(row['outer1']) - area_to_diam(row['inner1'])) / 2) / area_to_diam(row['outer1']) # wall area percentage
+def compute_wtr(inner, outer):
+  return ((area_to_diam(outer) - area_to_diam(inner)) / 2) / area_to_diam(outer) # wall area percentage
     
 
 def get_df_crowd(results_file):
@@ -253,12 +253,12 @@ def get_result_properties(res, df_annot):
     resized_annot = (annotations['major_ax'] - annotations['minor_ax'] > 0.0001) 
     resized = resized_annot.all()
     
-    # Assume only results with a single pair are used (otherwise select "best" pair?)
+    # Assume only results with a single pair are used 
     if num_annot == 2:
         outer = annotations['area'].max()
         inner = annotations['area'].min()
-        wap = (outer - inner) / outer * 100 # wall area percentage
-        wtr = ((area_to_diam(outer) - area_to_diam(inner)) / 2) / area_to_diam(outer) # wall thickness ratio
+        wap = compute_wap(inner, outer) 
+        wtr = compute_wtr(inner, outer)
     else:
         outer = np.nan
         inner = np.nan

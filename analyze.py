@@ -7,19 +7,17 @@ Created on Thu May 14 18:16:34 2020
 
 import pandas as pd
 import numpy as np
-
-import matplotlib.pyplot as plt
-
 import os.path
-
+import matplotlib.pyplot as plt
 
 import combine as crowdcombine
 
 
+#Path where figures will be stored (TODO put these all in 1 place)
 fig_path ='figures'
 
 
-
+#Print statistics about results
 def print_result(df_res_valid, df_res_invalid):
     
     
@@ -62,7 +60,7 @@ def print_result(df_res_valid, df_res_invalid):
 
 
 
-
+#Print statistics about workers
 def print_worker(df_res):
     res_per_worker=df_res.groupby(['result_creator']).count()[['result_id']]
     
@@ -75,7 +73,7 @@ def print_worker(df_res):
     
     
 
-
+#Plot number of results, created by number of workers
 def plot_result_worker(df_res):
     
     res = df_res['result_creator'].value_counts(ascending=True)
@@ -91,6 +89,7 @@ def plot_result_worker(df_res):
     
     
     
+#Scatter workers, represented by number of their valid/invalid results   
 def scatter_worker_valid(df_res_valid, df_res_invalid):
     
         
@@ -130,29 +129,25 @@ def scatter_worker_valid(df_res_valid, df_res_invalid):
     
     
     
+#Scatter task correlations between expert and crowd 
+def scatter_correlation_expert_crowd(df_task_combined, df_truth, combine_type):
     
-def scatter_correlation_expert_crowd(df_task, combine_type=''):
     
-    #combine_type = 'median' ## '' for no combining, 'median', 'best'
-       
-    if combine_type != '':
-        key = '_' + combine_type
-    else:
-        key = combine_type
+    df_task_combined = pd.merge(df_task_combined, df_truth, on='task_id', how='outer')    
+    
+    key = '_' + combine_type
         
     #Get the correlations
-    corr_inner = df_task['inner1'].corr(df_task['inner' + key])
-    corr_outer = df_task['outer1'].corr(df_task['outer' + key])
-    corr_wap = df_task['wap1'].corr(df_task['wap' + key])
-    corr_wtr = df_task['wtr1'].corr(df_task['wtr' + key])
+    corr_inner = df_task_combined['inner1'].corr(df_task_combined['inner' + key])
+    corr_outer = df_task_combined['outer1'].corr(df_task_combined['outer' + key])
+    corr_wap = df_task_combined['wap1'].corr(df_task_combined['wap' + key])
+    corr_wtr = df_task_combined['wtr1'].corr(df_task_combined['wtr' + key])
     
         
     # Plot the areas
     fig, axes = plt.subplots(nrows=2, ncols=2)
-    
-    print(axes.shape)
-    
-    ax0 = df_task.plot.scatter(ax=axes[0][0], x='inner1', y='inner'+key)
+        
+    ax0 = df_task_combined.plot.scatter(ax=axes[0][0], x='inner1', y='inner'+key)
     ax0.set_xlabel('Expert 1')
     ax0.set_ylabel('Crowd, ' + combine_type)  
     ax0.set_title('Inner airway, corr={:01.3f}'.format(corr_inner))
@@ -161,7 +156,7 @@ def scatter_correlation_expert_crowd(df_task, combine_type=''):
     
       
     
-    ax1 = df_task.plot.scatter(ax=axes[0][1], x='outer1', y='outer'+key)
+    ax1 = df_task_combined.plot.scatter(ax=axes[0][1], x='outer1', y='outer'+key)
     ax1.set_xlabel('Expert 1')
     ax1.set_ylabel('Crowd, ' + combine_type)  
     ax1.set_title('Outer airway, corr={:01.3f}'.format(corr_outer))
@@ -169,14 +164,14 @@ def scatter_correlation_expert_crowd(df_task, combine_type=''):
     ax1.set_aspect('equal', adjustable="datalim")
     
       
-    ax2 = df_task.plot.scatter(ax=axes[1][0], x='wap1',  y='wap'+key)
+    ax2 = df_task_combined.plot.scatter(ax=axes[1][0], x='wap1',  y='wap'+key)
     ax2.set_xlabel('Expert 1')
     ax2.set_ylabel('Crowd, ' + combine_type)  
     ax2.set_title('WAP, corr={:01.3f}'.format(corr_wap)) #TODO OMG WHY does this print out an extra line
     ax2.axis('equal')
     ax2.set_aspect('equal', adjustable="datalim")
     
-    ax3 = df_task.plot.scatter(ax=axes[1][1], x='wtr1',  y='wtr'+key)
+    ax3 = df_task_combined.plot.scatter(ax=axes[1][1], x='wtr1',  y='wtr'+key)
     ax3.set_xlabel('Expert 1')
     ax3.set_ylabel('Crowd, ' + combine_type)  
     ax3.set_title('WTR, corr={:01.3f}'.format(corr_wtr)) #TODO OMG WHY does this print out an extra line
@@ -188,18 +183,9 @@ def scatter_correlation_expert_crowd(df_task, combine_type=''):
  
 
 
-#TODO generalize this to any combining
-def plot_correlation_valid(df_task, df_res_valid, df_truth, combine_type=''):
-    
-    
-    if combine_type == 'median':
-        df_task = crowdcombine.get_task_median(df_task, df_res_valid, df_truth)
-    
-    elif combine_type == 'best':
-        df_task = crowdcombine.get_task_best(df_task, df_res_valid, df_truth)
-    else:
-        print('No such combine type')
-            
+#Plot the correlation against mininum number of valid results for each task
+def plot_correlation_valid(df_task_combined, df_truth, combine_type=''):
+       
     
     key = '_' + combine_type
         
@@ -212,7 +198,7 @@ def plot_correlation_valid(df_task, df_res_valid, df_truth, combine_type=''):
     
     for idx, m in enumerate(minimum_results):
     
-        df_task_subset = df_task.loc[df_task['num_combined']>=m]
+        df_task_subset = df_task_combined.loc[df_task_combined['num_combined']>=m]
     
         corr_inner[idx] = df_task_subset['inner1'].corr(df_task_subset['inner' + key])
         corr_outer[idx] = df_task_subset['outer1'].corr(df_task_subset['outer' + key])
@@ -241,20 +227,24 @@ def plot_correlation_valid(df_task, df_res_valid, df_truth, combine_type=''):
     
 
 
-def get_subject_correlation(df_subject, df_task, df_res_valid):
+def get_subject_correlation(df_subject, df_task_combined, combine_type=''):
 
-    subject_ids = df_task['subject_id'].unique()
+    key = '_' + combine_type
+   
+    subject_ids = df_task_combined['subject_id'].unique()
     corr_list = []
     
     for idx, subject_id in enumerate(subject_ids):
     
-        subject_results = df_res_valid.loc[df_res_valid['subject_id'] == subject_id]
+        subject_tasks = df_task_combined.loc[df_task_combined['subject_id'] == subject_id]
+        
+        print(subject_tasks.head())
     
-        n = len(subject_results['subject_id'])
-        inner1_inner = subject_results['inner1'].corr(subject_results['inner'])
-        outer1_outer = subject_results['outer1'].corr(subject_results['outer'])
-        wap1_wap = subject_results['wap1'].corr(subject_results['wap'])
-        wtr1_wtr = subject_results['wtr1'].corr(subject_results['wtr'])
+        n = len(subject_tasks['subject_id'])
+        inner1_inner = subject_tasks['inner1'].corr(subject_tasks['inner' + key])
+        outer1_outer = subject_tasks['outer1'].corr(subject_tasks['outer' + key])
+        wap1_wap = subject_tasks['wap1'].corr(subject_tasks['wap' + key])
+        wtr1_wtr = subject_tasks['wtr1'].corr(subject_tasks['wtr' + key])
         
     
         corr_dict = {
@@ -262,8 +252,8 @@ def get_subject_correlation(df_subject, df_task, df_res_valid):
             'subject_id': subject_id,
             'inner1_inner': inner1_inner,
             'outer1_outer': outer1_outer,
-            'wap1_wap': outer1_outer,
-            'wtr1_wtr': outer1_outer,
+            'wap1_wap': wap1_wap,
+            'wtr1_wtr': wtr1_wtr,
             }
         corr_list.append(corr_dict)  
      
@@ -271,44 +261,31 @@ def get_subject_correlation(df_subject, df_task, df_res_valid):
     
     return df_corr
     
+
+
     
-#TODO generalize this
-def scatter_subject_correlation(df_subject, df_task, df_res_valid):
-       
-    # TODO - correlation per subject - are some subjects more difficult than others? 
-    # Are there differences between CF and non CF? 
-    
-    
-    df_corr = get_subject_correlation(df_subject, df_task, df_res_valid)
-    corr_inner = df_corr['inner1_inner'].to_numpy()
-    corr_outer = df_corr['outer1_outer'].to_numpy()
-    
-    
-    
-    #Different variables related to the subjects, that we can display in the plot
-   
-    id = df_subject['subject_id'].to_numpy()
-    has_cf = df_subject['has_cf'].to_numpy()
-    fev = df_subject['FEV1_ppred'].to_numpy()
-    fvc= df_subject['FVC1_ppred'].to_numpy()
-    
-    #Plot the correlations, visualize subject status and FEV as color/size
-    fig = plt.figure()
-    plt.scatter(corr_inner[has_cf==1],corr_outer[has_cf==1], edgecolor='red', facecolor='none', s=fev[has_cf==1])
-    plt.scatter(corr_inner[has_cf==0],corr_outer[has_cf==0], edgecolor='blue', facecolor='none', s=fev[has_cf==0])
-    
+#Scatter correlations per subject, while displaying subject characteristics
+def scatter_subject_correlation(df_subject, df_task_combined, combine_type=''):
+  
+    df_corr = get_subject_correlation(df_subject, df_task_combined, combine_type)
+    df_corr = pd.merge(df_corr, df_subject, on='subject_id', how='outer')
  
     
-     #ax = df_corr.plot.scatter(x='inner1_inner',  y='outer1_outer')
+    groups = df_corr.groupby('has_cf')
     
-#
-    #TODO this is out of order now 
-    #for idx, subject_id in enumerate(id):
-    #    plt.annotate(subject_id, (corr_inner[idx]+0.01, corr_outer[idx]-0.02))
+    fig, ax = plt.subplots()
+    ax.margins(0.05) # Optional, just adds 5% padding to the autoscaling
+    for name, group in groups:
+       ax.plot(group['inner1_inner'], group['outer1_outer'], marker='o', linestyle='', label=name)
+       #TODO: needs ms=group['FEV1_ppred'].astype(float) (doesn't work)
+       
+    L = ax.legend(numpoints=1)
+    L.get_texts()[0].set_text('no CF')
+    L.get_texts()[1].set_text('has CF')
+
     
     plt.xlabel('Correlation with expert, inner')
     plt.ylabel('Correlation with expert, outer')
-    plt.legend('CF', 'no CF')
     plt.show()
     
     fig.tight_layout()

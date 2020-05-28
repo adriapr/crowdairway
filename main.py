@@ -22,47 +22,49 @@ import load_data as crowdload
 import analyze as crowdanalyze
 import combine as crowdcombine
 
-
-
-
-
+#Things that are working
 def main():
-        
-    # Process data - Only do this if there are no processed files, or a flag is set? (TODO)
-    # crowdload.process_data() 
-    
     # Load all the processed files 
     df_task, df_res, df_annot, df_truth, df_subject = crowdload.get_df_processed() 
     
     # Select valid results and analyze their statistics
-    df_res_valid, df_res_invalid = crowdcombine.get_valid_results(df_res,df_truth)
+    df_res_valid, df_res_invalid = crowdcombine.get_valid_results(df_res)
     
-    # How many results are there? How many are valid? 
-    #crowdanalyze.print_result(df_res_valid, df_res_invalid)
+    # How many results are there? How many workers are there? ? 
+    crowdanalyze.print_result(df_res_valid, df_res_invalid)
+    crowdanalyze.plot_result_worker(df_res_valid)
+    crowdanalyze.scatter_worker_valid(df_res_valid, df_res_invalid)
     
-    #crowdanalyze.plot_worker_result(df_res_valid)
     
-    #crowdanalyze.scatter_worker_valid(df_res_valid, df_res_invalid)
+    #Combine results per task in different ways, first, pick a random result
+    df_task_random = crowdcombine.get_task_random(df_task, df_res_valid)
+    crowdanalyze.scatter_correlation_expert_crowd(df_task_random, df_truth, 'random')
+    
+    
+    #Combine all results per task with median combining
+    df_task_median = crowdcombine.get_task_median(df_task, df_res_valid)
+    crowdanalyze.scatter_correlation_expert_crowd(df_task_median, df_truth, 'median')
+
+    #Select best result per task (optimistically biased, uses ground truth!)
+    df_task_best = crowdcombine.get_task_best(df_task, df_res_valid, df_truth) 
+    crowdanalyze.scatter_correlation_expert_crowd(df_task_best, df_truth, 'best')
 
 
-    #Combine results in different ways and compare to expert
-    
-    df_task_median = crowdcombine.get_task_median(df_task, df_res_valid, df_truth)
-    #df_task_best = crowdcombine.get_task_best(df_task, df_res_valid, df_truth) #Bug in get_task_best
+
+#Development
+def temp():
         
-    # Scatter individual results without combining
-    #crowdanalyze.scatter_correlation_expert_crowd(df_res_valid)
+    # Load all the processed files 
+    df_task, df_res, df_annot, df_truth, df_subject = crowdload.get_df_processed() 
+    
+    # Select valid results and analyze their statistics
+    df_res_valid, df_res_invalid = crowdcombine.get_valid_results(df_res)
+    
+    #df_task_best = crowdcombine.get_task_best(df_task, df_res_valid, df_truth) 
+    #crowdanalyze.scatter_correlation_expert_crowd(df_task_best, df_truth, 'best')
+
     
     
-    df_corr = crowdanalyze.get_subject_correlation(df_subject, df_task, df_res_valid)
-    print(df_corr.head())
-    
-    # Scatter combined results
-   # crowdanalyze.scatter_correlation_expert_crowd(df_task_median, 'median')
-    #crowdanalyze.scatter_corr(df_task_best, 'best')     
-    
-    # Scatter subjects, do the correlations depend on something?
-    crowdanalyze.scatter_subject_correlation(df_subject, df_task, df_res_valid)
     
     
     
