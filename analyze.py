@@ -267,7 +267,7 @@ def get_subject_correlation(df_subject, df_task_combined, combine_type=''):
 
     
 #Scatter correlations per subject, while displaying subject characteristics
-def scatter_subject_correlation(df_subject, df_task_combined, combine_type=''):
+def scatter_subject_correlation(df_subject, df_task_combined, combine_type):
   
     df_corr = get_subject_correlation(df_subject, df_task_combined, combine_type)
     df_corr = pd.merge(df_corr, df_subject, on='subject_id', how='outer')
