@@ -229,19 +229,23 @@ def plot_correlation_valid(df_task_combined, df_truth, combine_type):
     
 
 
-def get_subject_correlation(df_subject, df_task_combined, combine_type=''):
+def get_subject_correlation(df_subject, df_task_combined, df_truth, combine_type=''):
 
+    
+    cols_to_use = ['task_id', 'inner1', 'outer1', 'wap1', 'wtr1']
+    
+    df_task_combined = pd.merge(df_task_combined, df_truth[cols_to_use], on='task_id', how='outer')
+ 
+         
     key = '_' + combine_type
    
-    subject_ids = df_task_combined['subject_id'].unique()
+    subject_ids = df_subject['subject_id'].unique()
     corr_list = []
     
     for idx, subject_id in enumerate(subject_ids):
     
         subject_tasks = df_task_combined.loc[df_task_combined['subject_id'] == subject_id]
-        
-        print(subject_tasks.head())
-    
+           
         n = len(subject_tasks['subject_id'])
         inner1_inner = subject_tasks['inner1'].corr(subject_tasks['inner' + key])
         outer1_outer = subject_tasks['outer1'].corr(subject_tasks['outer' + key])
@@ -267,11 +271,13 @@ def get_subject_correlation(df_subject, df_task_combined, combine_type=''):
 
     
 #Scatter correlations per subject, while displaying subject characteristics
-def scatter_subject_correlation(df_subject, df_task_combined, combine_type):
+def scatter_subject_correlation(df_subject, df_task_combined, df_truth, combine_type):
   
-    df_corr = get_subject_correlation(df_subject, df_task_combined, combine_type)
+        
+    df_corr = get_subject_correlation(df_subject, df_task_combined, df_truth, combine_type)
     df_corr = pd.merge(df_corr, df_subject, on='subject_id', how='outer')
  
+    
     
     groups = df_corr.groupby('has_cf')
     

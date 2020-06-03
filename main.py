@@ -68,11 +68,11 @@ def temp():
     
     
     
-    df_task_random = crowdcombine.get_task_random(df_task, df_res_valid)
+    #df_task_random = crowdcombine.get_task_random(df_task, df_res_valid)
     df_task_median = crowdcombine.get_task_median(df_task, df_res_valid)
-    df_task_best = crowdcombine.get_task_best(df_task, df_res_valid, df_truth)
+    #df_task_best = crowdcombine.get_task_best(df_task, df_res_valid, df_truth)
    
-    crowdanalyze.scatter_subject_correlation(df_subject, df_task_median, 'median')
+    crowdanalyze.scatter_subject_correlation(df_subject, df_task_median, df_truth, 'median')
 
     
     

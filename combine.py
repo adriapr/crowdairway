@@ -45,6 +45,8 @@ def get_task_random(df_task, df_res):
 
     for task_id in df_task['task_id']:
       
+        
+        
         task_results = df_res.loc[df_res['task_id'] == task_id]
                 
         if len(task_results)>0:
@@ -73,12 +75,11 @@ def get_task_random(df_task, df_res):
         task_list.append(task_dict)
        
 
-    df_task = pd.DataFrame(task_list)
-    #print('nans ' + str(nancount))
-   
-    return df_task
-
-
+    df_task_combined = pd.DataFrame(task_list)
+    df_task_combined = pd.merge(df_task_combined, df_task, on='task_id', how='outer')    
+           
+    return df_task_combined
+    
 
 #Combine all the results for a task with median combining
 def get_task_median(df_task, df_res):
@@ -86,6 +87,10 @@ def get_task_median(df_task, df_res):
     task_list = []
 
     for task_id in df_task['task_id']:
+        
+        subject_id = df_task['subject_id'].to_numpy()[0]
+        airway_id = df_task['airway_id'].to_numpy()[0]
+        
       
         task_results = df_res.loc[df_res['task_id'] == task_id]
        
@@ -103,12 +108,10 @@ def get_task_median(df_task, df_res):
         task_list.append(task_dict)
        
 
-    df_task = pd.DataFrame(task_list)
-    
-    
-    #df_task = pd.merge(df_task, df_truth, on='task_id', how='outer')    
+    df_task_combined = pd.DataFrame(task_list)
+    df_task_combined = pd.merge(df_task_combined, df_task, on='task_id', how='outer')    
            
-    return df_task
+    return df_task_combined
 
 
 
@@ -119,8 +122,8 @@ def get_task_best(df_task, df_res_valid, df_truth):
 
 
     for task_id in df_task['task_id']:
-      
-        
+       
+       
         task_results = df_res_valid.loc[df_res_valid['task_id'] == task_id]
        
         
