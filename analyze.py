@@ -19,10 +19,13 @@ fig_path ='figures'
 
 #Set general style for plots
 def set_style():
-    sns.set_style("ticks") # style
     plt.rcParams['figure.figsize'] = [12, 10] # make figures larger
     plt.rcParams['figure.dpi'] = 150 # increase resolution
 
+    sns.set_style("ticks") # style
+    sns.set_context("talk") # make things bigger
+
+    
 #Print statistics about results
 def print_result(df_res_valid, df_res_invalid):
     
