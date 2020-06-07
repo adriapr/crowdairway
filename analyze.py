@@ -9,6 +9,7 @@ import pandas as pd
 import numpy as np
 import os.path
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 import combine as crowdcombine
 
@@ -16,6 +17,10 @@ import combine as crowdcombine
 #Path where figures will be stored (TODO put these all in 1 place)
 fig_path ='figures'
 
+#Set general style for plots
+def set_style():
+    sns.set_style("ticks") # style
+    plt.rcParams['figure.figsize'] = [16, 12] # make figures larger
 
 #Print statistics about results
 def print_result(df_res_valid, df_res_invalid):
