@@ -19,11 +19,11 @@ fig_path ='figures'
 
 #Set general style for plots
 def set_style():
-    plt.rcParams['figure.figsize'] = [12, 10] # make figures larger
-    plt.rcParams['figure.dpi'] = 150 # increase resolution
-
     sns.set_style("ticks") # style
     sns.set_context("talk") # make things bigger
+
+    plt.rcParams['figure.figsize'] = [12, 10] # make figures larger
+    plt.rcParams['figure.dpi'] = 150 # increase resolution
 
     
 #Print statistics about results
@@ -94,6 +94,7 @@ def plot_result_worker(df_res):
     plt.xlabel('Number of annotators')
     plt.ylabel('Cumulative results made') 
     
+    sns.despine()
     plt.show()
     
     
@@ -134,6 +135,8 @@ def scatter_worker_valid(df_res_valid, df_res_invalid):
     plt.xlabel('Valid results created')
     plt.ylabel('Invalid results created')
     plt.legend(('fit to data', 'equal ratio', 'worker'))
+    
+    sns.despine()
     plt.show()
     
     
@@ -186,6 +189,8 @@ def scatter_correlation_expert_crowd(df_task_combined, df_truth, combine_type):
     ax3.set_title('WTR, corr={:01.3f}'.format(corr_wtr)) #TODO OMG WHY does this print out an extra line
     ax3.axis('equal')
     ax3.set_aspect('equal', adjustable="datalim")
+    
+    sns.despine()
     
     fig.tight_layout()
     fig.savefig(os.path.join(fig_path, 'scatter_correlation' + key + '.png'))
@@ -303,6 +308,8 @@ def scatter_subject_correlation(df_subject, df_task_combined, df_truth, combine_
     
     plt.xlabel('Correlation with expert, inner')
     plt.ylabel('Correlation with expert, outer')
+    
+    sns.despine()
     plt.show()
     
     fig.tight_layout()
