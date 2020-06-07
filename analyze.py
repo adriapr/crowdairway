@@ -2,7 +2,7 @@
 """
 Created on Thu May 14 18:16:34 2020
 
-@author: vcheplyg
+@authors: vcheplyg, adriapr
 """
 
 import pandas as pd
@@ -123,7 +123,7 @@ def scatter_worker_valid(df_res_valid, df_res_invalid):
     
     max_value = np.max((np.max(x), np.max(y)))
     
-    plt.scatter(x,y)
+    plt.scatter(x,y, alpha=0.3) # transaprency makes easier to see dense areas
     
     m, b = np.polyfit(x, y, 1) 
     plt.plot(x, m*x + b) 
@@ -152,41 +152,44 @@ def scatter_correlation_expert_crowd(df_task_combined, df_truth, combine_type):
     corr_outer = df_task_combined['outer1'].corr(df_task_combined['outer' + key])
     corr_wap = df_task_combined['wap1'].corr(df_task_combined['wap' + key])
     corr_wtr = df_task_combined['wtr1'].corr(df_task_combined['wtr' + key])
-    
-        
+
     # Plot the areas
     fig, axes = plt.subplots(nrows=2, ncols=2)
         
-    ax0 = df_task_combined.plot.scatter(ax=axes[0][0], x='inner1', y='inner'+key)
+    ax0 = df_task_combined.plot.scatter(ax=axes[0][0], x='inner1', y='inner'+key, alpha = 0.3)
     ax0.set_xlabel('Expert 1')
     ax0.set_ylabel('Crowd, ' + combine_type)  
     ax0.set_title('Inner airway, corr={:01.3f}'.format(corr_inner))
-    ax0.axis('equal')
-    ax0.set_aspect('equal', adjustable="datalim")
+    max_data = max(ax0.get_xlim()[1], ax0.get_ylim()[1])
+    ax0.set_xlim(-5, max_data)
+    ax0.set_ylim(-5, max_data)
     
       
     
-    ax1 = df_task_combined.plot.scatter(ax=axes[0][1], x='outer1', y='outer'+key)
+    ax1 = df_task_combined.plot.scatter(ax=axes[0][1], x='outer1', y='outer'+key, alpha = 0.3)
     ax1.set_xlabel('Expert 1')
     ax1.set_ylabel('Crowd, ' + combine_type)  
     ax1.set_title('Outer airway, corr={:01.3f}'.format(corr_outer))
-    ax1.axis('equal')
-    ax1.set_aspect('equal', adjustable="datalim")
+    max_data = max(ax1.get_xlim()[1], ax1.get_ylim()[1])
+    ax1.set_xlim(-5, max_data)
+    ax1.set_ylim(-5, max_data)
     
       
-    ax2 = df_task_combined.plot.scatter(ax=axes[1][0], x='wap1',  y='wap'+key)
+    ax2 = df_task_combined.plot.scatter(ax=axes[1][0], x='wap1',  y='wap'+key, alpha = 0.3)
     ax2.set_xlabel('Expert 1')
     ax2.set_ylabel('Crowd, ' + combine_type)  
     ax2.set_title('WAP, corr={:01.3f}'.format(corr_wap)) #TODO OMG WHY does this print out an extra line
-    ax2.axis('equal')
-    ax2.set_aspect('equal', adjustable="datalim")
+    max_data = max(ax2.get_xlim()[1], ax2.get_ylim()[1])
+    ax2.set_xlim(-5, max_data)
+    ax2.set_ylim(-5, max_data)
     
-    ax3 = df_task_combined.plot.scatter(ax=axes[1][1], x='wtr1',  y='wtr'+key)
+    ax3 = df_task_combined.plot.scatter(ax=axes[1][1], x='wtr1',  y='wtr'+key, alpha = 0.3)
     ax3.set_xlabel('Expert 1')
     ax3.set_ylabel('Crowd, ' + combine_type)  
     ax3.set_title('WTR, corr={:01.3f}'.format(corr_wtr)) #TODO OMG WHY does this print out an extra line
-    ax3.axis('equal')
-    ax3.set_aspect('equal', adjustable="datalim")
+    max_data = max(ax3.get_xlim()[1], ax3.get_ylim()[1])
+    ax3.set_xlim(-5, max_data)
+    ax3.set_ylim(-5, max_data)
     
     sns.despine()
     
@@ -289,27 +292,52 @@ def scatter_subject_correlation(df_subject, df_task_combined, df_truth, combine_
     df_corr = get_subject_correlation(df_subject, df_task_combined, df_truth, combine_type)
     df_corr = pd.merge(df_corr, df_subject, on='subject_id', how='outer')
  
+    print(df_corr)
     
-    
-    groups = df_corr.groupby('has_cf')
-    
-    fig, ax = plt.subplots()
-    ax.margins(0.05) # Optional, just adds 5% padding to the autoscaling
-    for name, group in groups:
-       ax.plot(group['inner1_inner'], group['outer1_outer'], marker='o', linestyle='', label=name)
-       #TODO: needs ms=group['FEV1_ppred'].astype(float) (doesn't work)
-       
-    L = ax.legend(numpoints=1)
-    L.get_texts()[0].set_text('no CF')
-    L.get_texts()[1].set_text('has CF')
+    # using seaborn
+    if True:
 
-    
-    plt.xlabel('Correlation with expert, inner')
-    plt.ylabel('Correlation with expert, outer')
-    
-    sns.despine()
+      fig, ax = plt.subplots()
+      sns.scatterplot(data=df_corr, x='inner1_inner', y='outer1_outer',
+        hue='has_cf', size='FVC1_ppred', legend='full')
+
+      max_data = max(ax.get_xlim()[1], ax.get_ylim()[1])
+      ax.set_xlim(0, max_data)
+      ax.set_ylim(0, max_data)
+      
+      plt.xlabel('Correlation with expert, inner')
+      plt.ylabel('Correlation with expert, outer')
+
+      # this legend is driving me nuts
+      plt.legend(loc='upper left', labels=['Has CF', '', 'No CF'])
+
+      sns.despine()
+
+    if True:
+      groups = df_corr.groupby('has_cf')
+
+      
+      fig, ax = plt.subplots()
+      # ax.margins(0.05) # Optional, just adds 5% padding to the autoscaling
+      for name, group in groups:
+        ax.plot(group['inner1_inner'], group['outer1_outer'], marker='o', linestyle='', label=name)
+        #TODO: needs ms=group['FEV1_ppred'].astype(float) (doesn't work)
+        
+      L = ax.legend(numpoints=1)
+      L.get_texts()[0].set_text('no CF')
+      L.get_texts()[1].set_text('has CF')
+
+      max_data = max(ax.get_xlim()[1], ax.get_ylim()[1])
+      ax.set_xlim(0, max_data)
+      ax.set_ylim(0, max_data)
+      
+      plt.xlabel('Correlation with expert, inner')
+      plt.ylabel('Correlation with expert, outer')
+      
+      sns.despine()
+
     plt.show()
-    
+      
     fig.tight_layout()
     fig.savefig(os.path.join(fig_path, 'scatter_subject_correlation.png'))
     
