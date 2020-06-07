@@ -23,8 +23,6 @@ def set_style():
     sns.set_context("talk") # make things bigger
 
     plt.rcParams['figure.figsize'] = [12, 10] # make figures larger
-    plt.rcParams['figure.dpi'] = 150 # increase resolution
-
     
 #Print statistics about results
 def print_result(df_res_valid, df_res_invalid):
