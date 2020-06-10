@@ -87,7 +87,7 @@ def compute_wap(inner, outer):
   return (outer - inner) / outer * 100 # wall area percentage
 
 def compute_wtr(inner, outer):
-  return ((area_to_diam(outer) - area_to_diam(inner)) / 2) / area_to_diam(outer) # wall area percentage
+  return (((area_to_diam(outer) - area_to_diam(inner)) / 2) / area_to_diam(outer))/100 # wall area ratio
     
 
 def get_df_crowd(results_file):
