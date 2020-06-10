@@ -5,13 +5,11 @@ Created on Wed May 13 10:59:52 2020
 @author: vcheplyg
 """
 
-#import gdown
 import json, csv
 import pandas as pd
 import numpy as np
 
 from matplotlib.patches import Ellipse
-import matplotlib.pyplot as plt
 import math
 
 from skimage import draw
@@ -65,6 +63,9 @@ def process_data():
     df_res_props = pd.concat([df_res,df_props],axis=1)
     
     
+    
+    # Process ground truth  
+    print("Starting ground truth...")
     df_truth=pd.read_csv(os.path.join(path_raw, 'airways_ground_truth.csv'))
     df_truth['wap1'] = df_truth.apply(lambda row: compute_wap(row['inner1'], row['outer1']), axis=1)
     df_truth['wtr1'] = df_truth.apply(lambda row: compute_wtr(row['inner1'], row['outer1']), axis=1)
@@ -87,7 +88,7 @@ def compute_wap(inner, outer):
   return (outer - inner) / outer * 100 # wall area percentage
 
 def compute_wtr(inner, outer):
-  return (((area_to_diam(outer) - area_to_diam(inner)) / 2) / area_to_diam(outer))/100 # wall area ratio
+  return ((area_to_diam(outer) - area_to_diam(inner)) / 2) / area_to_diam(outer) # wall area ratio
     
 
 def get_df_crowd(results_file):

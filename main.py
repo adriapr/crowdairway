@@ -10,7 +10,6 @@ import numpy as np
 
 from matplotlib.patches import Ellipse
 import matplotlib.pyplot as plt
-import math
 
 from skimage import draw
 from parse import *

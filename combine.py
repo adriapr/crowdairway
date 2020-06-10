@@ -87,10 +87,7 @@ def get_task_median(df_task, df_res):
     task_list = []
 
     for task_id in df_task['task_id']:
-        
-        subject_id = df_task['subject_id'].to_numpy()[0]
-        airway_id = df_task['airway_id'].to_numpy()[0]
-        
+       
       
         task_results = df_res.loc[df_res['task_id'] == task_id]
        

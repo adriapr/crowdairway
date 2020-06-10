@@ -87,13 +87,19 @@ def plot_result_worker(df_res):
         
     x = np.arange(1,len(res))
     y =  np.cumsum(res)
-    plt.plot(x, y[:-1])
+    fig = plt.plot(x, y[:-1])
     
     plt.xlabel('Number of annotators')
     plt.ylabel('Cumulative results made') 
     
     sns.despine()
+    
+    fig.tight_layout()
+    fig.savefig(os.path.join(fig_path, 'plot_result_worker.png'))
+    
+    
     plt.show()
+    
     
     
     
@@ -123,19 +129,27 @@ def scatter_worker_valid(df_res_valid, df_res_invalid):
     
     max_value = np.max((np.max(x), np.max(y)))
     
-    plt.scatter(x,y, alpha=0.3) # transaprency makes easier to see dense areas
+    fig = plt.scatter(x,y, alpha=0.3) # transaprency makes easier to see dense areas
     
     m, b = np.polyfit(x, y, 1) 
     plt.plot(x, m*x + b) 
     
-    plt.plot(np.arange(0,max_value), np.arange(0,max_value))
+    #TODO How to make the lines equally long? max_value seems higher, than what's in the plot
     
+    
+    plt.plot(np.arange(0,max_value), np.arange(0,max_value)) 
     plt.xlabel('Valid results created')
     plt.ylabel('Invalid results created')
     plt.legend(('fit to data', 'equal ratio', 'worker'))
     
     sns.despine()
+    
+    fig.tight_layout()
+    fig.savefig(os.path.join(fig_path, 'scatter_worker_valid.png'))
+    
     plt.show()
+    
+  
     
     
     
@@ -336,10 +350,11 @@ def scatter_subject_correlation(df_subject, df_task_combined, df_truth, combine_
       
       sns.despine()
 
-    plt.show()
+   
       
     fig.tight_layout()
     fig.savefig(os.path.join(fig_path, 'scatter_subject_correlation.png'))
     
+    plt.show()
     
 
