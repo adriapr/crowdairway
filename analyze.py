@@ -87,7 +87,9 @@ def plot_result_worker(df_res):
         
     x = np.arange(1,len(res))
     y =  np.cumsum(res)
-    fig = plt.plot(x, y[:-1])
+    
+    fig = plt.figure()
+    plt.plot(x, y[:-1])
     
     plt.xlabel('Number of annotators')
     plt.ylabel('Cumulative results made') 
@@ -95,13 +97,11 @@ def plot_result_worker(df_res):
     sns.despine()
     
     fig.tight_layout()
-    fig.savefig(os.path.join(fig_path, 'plot_result_worker.png'))
+    fig.savefig(os.path.join(fig_path, 'plot_result_worker.png'), format="png")
+    #doesn't work
     
     
-    plt.show()
-    
-    
-    
+        
     
 #Scatter workers, represented by number of their valid/invalid results   
 def scatter_worker_valid(df_res_valid, df_res_invalid):
@@ -129,7 +129,9 @@ def scatter_worker_valid(df_res_valid, df_res_invalid):
     
     max_value = np.max((np.max(x), np.max(y)))
     
-    fig = plt.scatter(x,y, alpha=0.3) # transaprency makes easier to see dense areas
+    
+    fig = plt.figure()
+    plt.scatter(x,y, alpha=0.3) # transaprency makes easier to see dense areas
     
     m, b = np.polyfit(x, y, 1) 
     plt.plot(x, m*x + b) 
@@ -145,11 +147,8 @@ def scatter_worker_valid(df_res_valid, df_res_invalid):
     sns.despine()
     
     fig.tight_layout()
-    fig.savefig(os.path.join(fig_path, 'scatter_worker_valid.png'))
-    
-    plt.show()
-    
-  
+    fig.savefig(os.path.join(fig_path, 'scatter_worker_valid.png'), format="png")
+    #doesn't work
     
     
     
@@ -208,8 +207,8 @@ def scatter_correlation_expert_crowd(df_task_combined, df_truth, combine_type):
     sns.despine()
     
     fig.tight_layout()
-    fig.savefig(os.path.join(fig_path, 'scatter_correlation' + key + '.png'))
- 
+    fig.savefig(os.path.join(fig_path, 'scatter_correlation' + key + '.png'), format="png")
+    #works
 
 
 #Plot the correlation against mininum number of valid results for each task
@@ -254,8 +253,8 @@ def plot_correlation_valid(df_task_combined, df_truth, combine_type):
     ax2.legend() #TODO combine legend
     
     fig.tight_layout() 
-    fig.savefig(os.path.join(fig_path, 'plot_correlation_valid' + key + '.png'))
-    
+    fig.savefig(os.path.join(fig_path, 'plot_correlation_valid' + key + '.png'), format="png")
+    #works
 
 
 def get_subject_correlation(df_subject, df_task_combined, df_truth, combine_type=''):
@@ -353,8 +352,7 @@ def scatter_subject_correlation(df_subject, df_task_combined, df_truth, combine_
    
       
     fig.tight_layout()
-    fig.savefig(os.path.join(fig_path, 'scatter_subject_correlation.png'))
+    fig.savefig(os.path.join(fig_path, 'scatter_subject_correlation.png'), format="png")
     
-    plt.show()
     
 
