@@ -36,8 +36,8 @@ def print_result(df_res_valid, df_res_invalid):
     print('Valid ' + str(num_valid))
     print('Invalid ' + str(num_invalid))
     
-    print('Invalid % ' + str(num_invalid / num_total))
-    print('Invalid % preliminary ' + str(610/900))
+    print('Invalid % {0:.{1}f} '.format(num_invalid / num_total * 100, 1))
+    print('Invalid % preliminary {0:.{1}f} '.format(610/900*100, 1))
     
     
     # Why are results invalid? 
@@ -61,8 +61,8 @@ def print_result(df_res_valid, df_res_invalid):
     # Resized and inside, but not one pair - technically valid, but now exluded for simpler analysis 
     val6 = df_res_invalid['result_id'].loc[cond_inside & cond_resized & ~cond_two].count()
     
-    print('Did not see airway or spam: ' + str(val2))
-    print('Tried to annotate but did not read instructions: ' + str(val3+val4+val5))
+    print('Only one annotation (did not see airway or did not read): ' + str(val2))
+    print('Two ore more annotations, but did not read instructions: ' + str(val3+val4+val5))
     print('Excluded for simpler analysis: ' + str(val6))
 
 

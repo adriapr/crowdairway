@@ -66,12 +66,15 @@ def temp():
     df_res_valid, df_res_invalid = crowdcombine.get_valid_results(df_res)
     
     
+         
+    # How many results are there? How many workers are there? ? 
+    crowdanalyze.print_result(df_res_valid, df_res_invalid)
     
     #df_task_random = crowdcombine.get_task_random(df_task, df_res_valid)
-    df_task_median = crowdcombine.get_task_median(df_task, df_res_valid)
+    #df_task_median = crowdcombine.get_task_median(df_task, df_res_valid)
     #df_task_best = crowdcombine.get_task_best(df_task, df_res_valid, df_truth)
    
-    crowdanalyze.scatter_subject_correlation(df_subject, df_task_median, df_truth, 'median')
+    #crowdanalyze.scatter_subject_correlation(df_subject, df_task_median, df_truth, 'median')
 
     
     
