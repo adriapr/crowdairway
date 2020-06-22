@@ -13,6 +13,12 @@ import seaborn as sns
 
 import combine as crowdcombine
 
+import statsmodels.api as sm
+
+from sklearn import linear_model
+
+from sklearn.metrics import mean_squared_error, r2_score
+
 
 #Path where figures will be stored (TODO put these all in 1 place)
 fig_path ='figures'
@@ -158,7 +164,10 @@ def scatter_correlation_expert_crowd(df_task_combined, df_truth, combine_type):
     
     df_task_combined = pd.merge(df_task_combined, df_truth, on='task_id', how='outer')    
     
-    key = '_' + combine_type
+    if combine_type == '':
+        key = ''
+    else:
+        key = '_' + combine_type
         
     #Get the correlations
     corr_inner = df_task_combined['inner1'].corr(df_task_combined['inner' + key])
@@ -356,3 +365,57 @@ def scatter_subject_correlation(df_subject, df_task_combined, df_truth, combine_
     
     
 
+    
+#Scatter correlations per subject, while displaying subject characteristics
+def predict_subject_correlation(df_subject, df_task_combined, df_truth, combine_type):
+  
+        
+    df_corr = get_subject_correlation(df_subject, df_task_combined, df_truth, combine_type)
+    df_corr = pd.merge(df_corr, df_subject, on='subject_id', how='outer')
+    
+    #X = df_corr[['has_cf', 'FVC1_ppred', 'FEV1_ppred']]
+    X = df_corr[['has_cf', 'FEV1_ppred']]
+    y = df_corr['inner1_inner']
+    
+    lm = linear_model.LinearRegression()
+    model = lm.fit(X,y)
+    
+    predictions = lm.predict(X)
+    
+      
+    
+    # The coefficients
+    print('Coefficients: \n', lm.coef_)
+    # The mean squared error
+    print('Mean squared error: %.2f', mean_squared_error(y, predictions))
+    # The coefficient of determination: 1 is perfect prediction
+    print('Coefficient of determination: %.2f', r2_score(y, predictions))
+
+    #print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, y_pred))  
+    #print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))  
+    #print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
+
+  
+    fig = plt.figure()
+    
+    plt.scatter(y, predictions) 
+    
+    print('True, ' + str(np.min(y)) + ' ' + str(np.max(y)))
+    print('Predicted, ' + str(np.min(predictions)) + ' ' + str(np.max(predictions)))
+
+    plt.plot([0.4, 0.8], [0.4, 0.8]) 
+    
+    
+    plt.xlabel('True correlation')
+    plt.ylabel('Predicted correlation')
+    plt.title('Inner airway, median combining')
+
+    
+    sns.despine()
+    
+    
+    fig.tight_layout()
+    fig.savefig(os.path.join(fig_path, 'predict_subject_correlation.png'), format="png")
+    
+    
+    #plt.plot(y, lm.coef_*X + lm.intercept) 
