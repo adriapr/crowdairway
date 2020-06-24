@@ -363,9 +363,90 @@ def scatter_subject_correlation(df_subject, df_task_combined, df_truth, combine_
     fig.tight_layout()
     fig.savefig(os.path.join(fig_path, 'scatter_subject_correlation.png'), format="png")
     
+#Scatter correlations per subject, while displaying subject characteristics
+def print_subject(df_subject, df_task_combined, df_truth, combine_type):
+          
+    df_corr = get_subject_correlation(df_subject, df_task_combined, df_truth, combine_type)
+    df_corr = pd.merge(df_subject, df_corr, on='subject_id', how='outer')    
     
+    df_select = df_corr[['subject_id', 'has_cf', 'FVC1_ppred', 'FEV1_ppred', 'n', 'inner1_inner', 'outer1_outer', 'wap1_wap', 'wtr1_wtr']]
+
+    print(df_select.to_latex(float_format="%.2f"))
+    
+    
+    
+    
+#Scatter correlations per subject, while displaying subject characteristics
+def plot_subject_correlation(df_subject, df_task_combined, df_truth, combine_type):
+  
+        
+    df_corr = get_subject_correlation(df_subject, df_task_combined, df_truth, combine_type)
+    df_corr = pd.merge(df_corr, df_subject, on='subject_id', how='outer')
+    
+    df_truth_subject = df_truth.groupby('subject_id').mean()
+    df_corr = pd.merge(df_corr, df_truth_subject[['generation']], on='subject_id', how='outer')
+   
+    
+    
+    groups = df_corr.groupby('has_cf')
+
+      
+    fig, ax = plt.subplots()
+    # ax.margins(0.05) # Optional, just adds 5% padding to the autoscaling
+    for name, group in groups:
+        ax.plot(group['FEV1_ppred'], group['inner1_inner'], marker='o', linestyle='', label=name)
+        
+    L = ax.legend(numpoints=1)
+    L.get_texts()[0].set_text('no CF')
+    L.get_texts()[1].set_text('has CF')
+
+    #max_data = max(ax.get_xlim()[1], ax.get_ylim()[1])
+    #ax.set_xlim(0, max_data)
+    #ax.set_ylim(0, max_data)
+      
+    plt.xlabel('FEV1')
+    plt.ylabel('Correlation crowd and expert, inner')
+      
+    sns.despine()
 
     
+    plt.title('Inner airway, median combining')
+        
+    fig.tight_layout()
+    fig.savefig(os.path.join(fig_path, 'predict_subject_correlation_fev1.png'), format="png")
+    
+    
+    df_truth_subject = df_truth.groupby('subject_id').mean()
+    df_corr = pd.merge(df_corr, df_truth_subject[['generation']], on='subject_id', how='outer')
+    
+    fig, ax = plt.subplots()
+    # ax.margins(0.05) # Optional, just adds 5% padding to the autoscaling
+    for name, group in groups:
+        ax.plot(group['generation'], group['inner1_inner'], marker='o', linestyle='', label=name)
+        
+    L = ax.legend(numpoints=1)
+    L.get_texts()[0].set_text('no CF')
+    L.get_texts()[1].set_text('has CF')
+
+    #max_data = max(ax.get_xlim()[1], ax.get_ylim()[1])
+    #ax.set_xlim(0, max_data)
+    #ax.set_ylim(0, max_data)
+      
+    plt.xlabel('Average airway generation')
+    plt.ylabel('Correlation crowd and expert, inner')
+      
+    sns.despine()
+
+    
+    plt.title('Inner airway, median combining')
+        
+    fig.tight_layout()
+    fig.savefig(os.path.join(fig_path, 'predict_subject_correlation_generation.png'), format="png")
+    
+    
+    
+    
+     
 #Scatter correlations per subject, while displaying subject characteristics
 def predict_subject_correlation(df_subject, df_task_combined, df_truth, combine_type):
   
@@ -373,8 +454,12 @@ def predict_subject_correlation(df_subject, df_task_combined, df_truth, combine_
     df_corr = get_subject_correlation(df_subject, df_task_combined, df_truth, combine_type)
     df_corr = pd.merge(df_corr, df_subject, on='subject_id', how='outer')
     
-    #X = df_corr[['has_cf', 'FVC1_ppred', 'FEV1_ppred']]
-    X = df_corr[['has_cf', 'FEV1_ppred']]
+    #Get average airway geenration from subjects
+    df_truth_subject = df_truth.groupby('subject_id').mean()
+    
+    df_corr = pd.merge(df_corr, df_truth_subject[['generation']], on='subject_id', how='outer')
+    
+    X = df_corr[['has_cf', 'FVC1_ppred', 'FEV1_ppred', 'n', 'generation']]
     y = df_corr['inner1_inner']
     
     lm = linear_model.LinearRegression()
@@ -394,28 +479,3 @@ def predict_subject_correlation(df_subject, df_task_combined, df_truth, combine_
     #print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, y_pred))  
     #print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))  
     #print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
-
-  
-    fig = plt.figure()
-    
-    plt.scatter(y, predictions) 
-    
-    print('True, ' + str(np.min(y)) + ' ' + str(np.max(y)))
-    print('Predicted, ' + str(np.min(predictions)) + ' ' + str(np.max(predictions)))
-
-    plt.plot([0.4, 0.8], [0.4, 0.8]) 
-    
-    
-    plt.xlabel('True correlation')
-    plt.ylabel('Predicted correlation')
-    plt.title('Inner airway, median combining')
-
-    
-    sns.despine()
-    
-    
-    fig.tight_layout()
-    fig.savefig(os.path.join(fig_path, 'predict_subject_correlation.png'), format="png")
-    
-    
-    #plt.plot(y, lm.coef_*X + lm.intercept) 
