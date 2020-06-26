@@ -133,7 +133,7 @@ def scatter_worker_valid(df_res_valid, df_res_invalid):
     y = worker_num_invalid
     
     
-    max_value = np.max((np.max(x), np.max(y)))
+    end_line = np.min((np.max(x), np.max(y)))
     
     
     fig = plt.figure()
@@ -142,10 +142,7 @@ def scatter_worker_valid(df_res_valid, df_res_invalid):
     m, b = np.polyfit(x, y, 1) 
     plt.plot(x, m*x + b) 
     
-    #TODO How to make the lines equally long? max_value seems higher, than what's in the plot
-    
-    
-    plt.plot(np.arange(0,max_value), np.arange(0,max_value)) 
+    plt.plot([0, end_line], [0, end_line]) 
     plt.xlabel('Valid results created')
     plt.ylabel('Invalid results created')
     plt.legend(('fit to data', 'equal ratio', 'worker'))
