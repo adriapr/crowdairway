@@ -229,6 +229,8 @@ def plot_correlation_valid(df_task_combined, df_truth, combine_type):
     n_min = len(minimum_results)
     corr_inner = np.zeros(n_min)
     corr_outer = np.zeros(n_min)
+    corr_WTR = np.zeros(n_min)
+    corr_WAP = np.zeros(n_min)
     num_tasks = np.zeros(n_min)
     
     
@@ -238,17 +240,22 @@ def plot_correlation_valid(df_task_combined, df_truth, combine_type):
     
         corr_inner[idx] = df_task_subset['inner1'].corr(df_task_subset['inner' + key])
         corr_outer[idx] = df_task_subset['outer1'].corr(df_task_subset['outer' + key])
+        corr_WTR[idx] = df_task_subset['wtr1'].corr(df_task_subset['wtr' + key])
+        corr_WAP[idx] = df_task_subset['wap1'].corr(df_task_subset['wap' + key])
         num_tasks[idx] = df_task_subset['task_id'].count()
-            
+           
     fig, ax1 = plt.subplots()
     
     color = 'tab:red'
     ax1.set_xlabel('Minimum number of valid results')
     ax1.set_ylabel('Correlation crowd with expert 1', color=color)
-    ax1.plot(minimum_results, corr_inner, label='Inner',  color=color, linestyle='-')
     ax1.plot(minimum_results, corr_outer, label='Outer',  color=color, linestyle='--')
+    ax1.plot(minimum_results, corr_inner, label='Inner',  color=color, linestyle='-')
+    ax1.plot(minimum_results, corr_WAP, label='WAP',  color='k', linestyle=':')
+    ax1.plot(minimum_results, corr_WTR, label='WTR',  color='k', linestyle='-.')
     ax1.tick_params(axis='y', labelcolor=color)
-    ax1.legend()
+    ax1.legend(loc='lower left')
+    ax1.set_ylim(0,1)
     
     ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
     
@@ -256,7 +263,8 @@ def plot_correlation_valid(df_task_combined, df_truth, combine_type):
     ax2.set_ylabel('Number of tasks analyzed', color=color)  # we already handled the x-label with ax1
     ax2.plot(minimum_results, num_tasks, color=color, linestyle=':', label='Tasks')
     ax2.tick_params(axis='y', labelcolor=color)
-    ax2.legend() #TODO combine legend
+    ax2.legend(loc='lower right')
+    ax2.set_ylim(0,np.max(num_tasks)+50)
     
     fig.tight_layout() 
     fig.savefig(os.path.join(fig_path, 'plot_correlation_valid' + key + '.png'), format="png")
