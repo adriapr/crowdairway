@@ -55,7 +55,7 @@ def get_task_random(df_task, df_res):
             outer_random = res_random['outer'].to_numpy()[0]
             inner_random = res_random['inner'].to_numpy()[0]
             wap_random = crowdload.compute_wap(inner_random,outer_random) 
-            wtr_random = crowdload.compute_wap(inner_random,outer_random) 
+            wtr_random = crowdload.compute_wtr(inner_random,outer_random) 
         else:
             num_combined = 0
             outer_random = np.nan

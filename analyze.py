@@ -207,8 +207,8 @@ def scatter_correlation_expert_crowd(df_task_combined, df_truth, combine_type):
     ax3.set_ylabel('Crowd, ' + combine_type)  
     ax3.set_title('WTR, corr={:01.3f}'.format(corr_wtr)) #TODO OMG WHY does this print out an extra line
     max_data = max(ax3.get_xlim()[1], ax3.get_ylim()[1])
-    ax3.set_xlim(-5, max_data)
-    ax3.set_ylim(-5, max_data)
+    ax3.set_xlim(-0.05, max_data)
+    ax3.set_ylim(-0.05, max_data)
     
     sns.despine()
     
