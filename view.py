@@ -27,8 +27,8 @@ def show_task(task_id, df_task):
     #Select corresponding task from data frame
     df = df_task.loc[df_task['task_id'] == task_id]
        
-    subject_id = df['subject_id'][0]  #TODO also need to handle what happens if task_id doesn't exist
-    airway_id =  df['airway_id'][0]
+    subject_id = df['subject_id'].values[0]  #TODO also need to handle what happens if task_id doesn't exist
+    airway_id =  df['airway_id'].values[0]
     
     
     task_file = 'data({}).airways({}).viewpoints(1).png'.format(subject_id, airway_id)
