@@ -30,6 +30,7 @@ file_task = os.path.join(path_processed, 'tasks.csv')
 file_res = os.path.join(path_processed, 'results.csv')
 file_annot = os.path.join(path_processed, 'annotations.csv')
 
+file_task_class = os.path.join(path_raw, 'airways_classified.csv')
 
 
 def get_df_processed():
@@ -51,7 +52,8 @@ def process_data():
    
     results_file = os.path.join(path_raw, 'crowd_results.json')
     df_task, df_res, df_annot = get_df_crowd(results_file)
-            
+    
+               
     print("Starting annotations...")
     df_ellipse = df_annot.apply(lambda annotation: get_annotation_ellipse(annotation), axis='columns', result_type='expand')
     df_annot_ellipse = pd.concat([df_annot, df_ellipse], axis='columns')
@@ -61,14 +63,15 @@ def process_data():
     
     df_props = df_res.apply(lambda res: get_result_properties(res, df_annot_ellipse), axis='columns', result_type='expand')
     df_res_props = pd.concat([df_res,df_props],axis=1)
-    
-    
+        
     
     # Process ground truth  
     print("Starting ground truth...")
     df_truth=pd.read_csv(os.path.join(path_raw, 'airways_ground_truth.csv'))
     df_truth['wap1'] = df_truth.apply(lambda row: compute_wap(row['inner1'], row['outer1']), axis=1)
     df_truth['wtr1'] = df_truth.apply(lambda row: compute_wtr(row['inner1'], row['outer1']), axis=1)
+    
+    
     
     
     #Write processed files to CSV
@@ -97,6 +100,10 @@ def get_df_crowd(results_file):
     with open(results_file) as json_file:
         data = json.load(json_file)
     
+    # Load category (airway visibility good/bad) of each task as later annotated by an observer    
+    df_task_class = pd.read_csv(file_task_class)
+    
+   
     tasks = data['project']['tasks']
     
     # Initialize variables
@@ -110,45 +117,62 @@ def get_df_crowd(results_file):
         # Save information about the task
         task_id = task['frame']['frameIndex']
         filename = task['frame']['original']
+        
+        #Find other information based on file name parts
         parts=search('data({:d}).airways({:d})',filename)
-    
-        task_dict = {
-            'task_id': task_id,
-            'subject_id': parts[0],
-            'airway_id': parts[1]
-            }
-        task_list.append(task_dict)  
-            
-        for result in task['results']:
-            
-            for annotation in result['annotations']:
-                
-                # Coordinates of the ellipse
-                x = annotation['points'][0][0::2]
-                y = annotation['points'][0][1::2]
-                
-                points = list(zip(x, y))
+        
+        short_filename = 'data('+str(parts[0])+').airways('+str(parts[1])+').viewpoints(1).png'
+        
+        
+        print(short_filename)
+        #Find category of airway
+        task_class = df_task_class['category'].loc[df_task_class['file']==short_filename].values[0]
               
-                # Save information about the annotation 
-                ann_dict = {
-                    'result_id': result_id,
-                    'annotation_id': annotation['id'],
-                    'points': points,
+        
+        # Only include visible airways 
+        if task_class == 'good':
+            
+            
+        
+            task_dict = {
+                'task_id': task_id,
+                'subject_id': parts[0],
+                'airway_id': parts[1],
+                'task_class': task_class
                 }
-                annotations_list.append(ann_dict)   
-    
-            #Save information about the result
-            res_dict = {
-                    'task_id': task_id,
-                    'result_id': result_id,
-                    'result_creator': annotation['meta']['creator'],
-                     }
-            results_list.append(res_dict)    
-            result_id = result_id+1 
+            task_list.append(task_dict)  
+                
+            for result in task['results']:
+                
+                for annotation in result['annotations']:
+                    
+                    # Coordinates of the ellipse
+                    x = annotation['points'][0][0::2]
+                    y = annotation['points'][0][1::2]
+                    
+                    points = list(zip(x, y))
+                  
+                    # Save information about the annotation 
+                    ann_dict = {
+                        'result_id': result_id,
+                        'annotation_id': annotation['id'],
+                        'points': points,
+                    }
+                    annotations_list.append(ann_dict)   
+        
+                #Save information about the result
+                res_dict = {
+                        'task_id': task_id,
+                        'result_id': result_id,
+                        'result_creator': annotation['meta']['creator'],
+                         }
+                results_list.append(res_dict)    
+                result_id = result_id+1 
     
     df_task = pd.DataFrame(task_list)
     df_res = pd.DataFrame(results_list)
     df_annot = pd.DataFrame(annotations_list)
+    
         
     return df_task, df_res, df_annot
 
