@@ -34,6 +34,8 @@ def main():
     
     # How many results are there? How many workers are there? ? 
     crowdanalyze.print_result(df_res_valid, df_res_invalid)
+    
+    crowdanalyze.print_worker(df_res)
     crowdanalyze.plot_result_worker(df_res_valid)
     crowdanalyze.scatter_worker_valid(df_res_valid, df_res_invalid)
     
@@ -53,9 +55,9 @@ def main():
 
 
     #Correlation vs minimum number of available valid results 
-    crowdanalyze.plot_correlation_valid(df_task_random, df_truth, 'random')
-    crowdanalyze.plot_correlation_valid(df_task_median, df_truth, 'median')
-    crowdanalyze.plot_correlation_valid(df_task_best, df_truth, 'best')
+    #crowdanalyze.plot_correlation_valid(df_task_random, df_truth, 'random')
+    #crowdanalyze.plot_correlation_valid(df_task_median, df_truth, 'median')
+    #crowdanalyze.plot_correlation_valid(df_task_best, df_truth, 'best')
     
     
 

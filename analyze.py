@@ -210,11 +210,13 @@ def scatter_correlation_expert_crowd(df_task_combined, df_truth, combine_type):
     ax3.set_xlim(-0.05, max_data)
     ax3.set_ylim(-0.05, max_data)
     
+    plt.savefig(os.path.join(fig_path, 'scatter_correlation' + key + '.png'), format="png")
+    
     sns.despine()
     
     fig.tight_layout()
     fig.savefig(os.path.join(fig_path, 'scatter_correlation' + key + '.png'), format="png")
-    #works
+    #DOESNT WORK
 
 
 #Plot the correlation against mininum number of valid results for each task
