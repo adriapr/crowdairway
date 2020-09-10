@@ -70,6 +70,8 @@ def process_data():
     df_truth=pd.read_csv(os.path.join(path_raw, 'airways_ground_truth.csv'))
     df_truth['wap1'] = df_truth.apply(lambda row: compute_wap(row['inner1'], row['outer1']), axis=1)
     df_truth['wtr1'] = df_truth.apply(lambda row: compute_wtr(row['inner1'], row['outer1']), axis=1)
+    df_truth['wap2'] = df_truth.apply(lambda row: compute_wap(row['inner2'], row['outer2']), axis=1)
+    df_truth['wtr2'] = df_truth.apply(lambda row: compute_wtr(row['inner2'], row['outer2']), axis=1)
     
     
     
@@ -124,7 +126,7 @@ def get_df_crowd(results_file):
         short_filename = 'data('+str(parts[0])+').airways('+str(parts[1])+').viewpoints(1).png'
         
         
-        print(short_filename)
+        #print(short_filename)
         #Find category of airway
         task_class = df_task_class['category'].loc[df_task_class['file']==short_filename].values[0]
               

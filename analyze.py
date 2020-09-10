@@ -161,6 +161,7 @@ def scatter_correlation_expert_crowd(df_task_combined, df_truth, combine_type):
     
     df_task_combined = pd.merge(df_task_combined, df_truth, on='task_id', how='outer')    
     
+    # Situation where on combining is done, i.e. we assume each result is for a unique task
     if combine_type == '':
         key = ''
     else:
@@ -171,14 +172,17 @@ def scatter_correlation_expert_crowd(df_task_combined, df_truth, combine_type):
     corr_outer = df_task_combined['outer1'].corr(df_task_combined['outer' + key])
     corr_wap = df_task_combined['wap1'].corr(df_task_combined['wap' + key])
     corr_wtr = df_task_combined['wtr1'].corr(df_task_combined['wtr' + key])
-
+  
     # Plot the areas
     fig, axes = plt.subplots(nrows=2, ncols=2)
         
     ax0 = df_task_combined.plot.scatter(ax=axes[0][0], x='inner1', y='inner'+key, alpha = 0.3)
     ax0.set_xlabel('Expert 1')
     ax0.set_ylabel('Crowd, ' + combine_type)  
-    ax0.set_title('Inner airway, corr={:01.3f}'.format(corr_inner))
+    
+    t = 'Inner airway, corr={:01.3f}'.format(corr_inner)
+    print(t)
+    ax0.set_title(t)
     max_data = max(ax0.get_xlim()[1], ax0.get_ylim()[1])
     ax0.set_xlim(-5, max_data)
     ax0.set_ylim(-5, max_data)
@@ -188,7 +192,9 @@ def scatter_correlation_expert_crowd(df_task_combined, df_truth, combine_type):
     ax1 = df_task_combined.plot.scatter(ax=axes[0][1], x='outer1', y='outer'+key, alpha = 0.3)
     ax1.set_xlabel('Expert 1')
     ax1.set_ylabel('Crowd, ' + combine_type)  
-    ax1.set_title('Outer airway, corr={:01.3f}'.format(corr_outer))
+    t = 'Outer airway, corr={:01.3f}'.format(corr_outer)
+    ax1.set_title(t)
+    print(t)
     max_data = max(ax1.get_xlim()[1], ax1.get_ylim()[1])
     ax1.set_xlim(-5, max_data)
     ax1.set_ylim(-5, max_data)
@@ -197,7 +203,9 @@ def scatter_correlation_expert_crowd(df_task_combined, df_truth, combine_type):
     ax2 = df_task_combined.plot.scatter(ax=axes[1][0], x='wap1',  y='wap'+key, alpha = 0.3)
     ax2.set_xlabel('Expert 1')
     ax2.set_ylabel('Crowd, ' + combine_type)  
-    ax2.set_title('WAP, corr={:01.3f}'.format(corr_wap)) #TODO OMG WHY does this print out an extra line
+    t = 'WAP, corr={:01.3f}'.format(corr_wap)
+    ax2.set_title(t) 
+    print(t)
     max_data = max(ax2.get_xlim()[1], ax2.get_ylim()[1])
     ax2.set_xlim(-5, max_data)
     ax2.set_ylim(-5, max_data)
@@ -205,18 +213,20 @@ def scatter_correlation_expert_crowd(df_task_combined, df_truth, combine_type):
     ax3 = df_task_combined.plot.scatter(ax=axes[1][1], x='wtr1',  y='wtr'+key, alpha = 0.3)
     ax3.set_xlabel('Expert 1')
     ax3.set_ylabel('Crowd, ' + combine_type)  
-    ax3.set_title('WTR, corr={:01.3f}'.format(corr_wtr)) #TODO OMG WHY does this print out an extra line
+    t = 'WTR, corr={:01.3f}'.format(corr_wtr)
+    ax3.set_title(t)
+    print(t)
     max_data = max(ax3.get_xlim()[1], ax3.get_ylim()[1])
     ax3.set_xlim(-0.05, max_data)
     ax3.set_ylim(-0.05, max_data)
     
-    plt.savefig(os.path.join(fig_path, 'scatter_correlation' + key + '.png'), format="png")
+    
     
     sns.despine()
     
     fig.tight_layout()
     fig.savefig(os.path.join(fig_path, 'scatter_correlation' + key + '.png'), format="png")
-    #DOESNT WORK
+
 
 
 #Plot the correlation against mininum number of valid results for each task
@@ -276,10 +286,13 @@ def plot_correlation_valid(df_task_combined, df_truth, combine_type):
 def get_subject_correlation(df_subject, df_task_combined, df_truth, combine_type=''):
 
     
+    #cols_to_use = ['task_id', 'inner1', 'outer1', 'wap1', 'wtr1', 'subject_id']
+    
     cols_to_use = ['task_id', 'inner1', 'outer1', 'wap1', 'wtr1']
     
     df_task_combined = pd.merge(df_task_combined, df_truth[cols_to_use], on='task_id', how='outer')
  
+    print(df_task_combined.keys())
          
     key = '_' + combine_type
    
@@ -388,6 +401,8 @@ def plot_subject_correlation(df_subject, df_task_combined, df_truth, combine_typ
   
         
     df_corr = get_subject_correlation(df_subject, df_task_combined, df_truth, combine_type)
+    
+    
     df_corr = pd.merge(df_corr, df_subject, on='subject_id', how='outer')
     
     df_truth_subject = df_truth.groupby('subject_id').mean()
@@ -486,3 +501,68 @@ def predict_subject_correlation(df_subject, df_task_combined, df_truth, combine_
     #print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, y_pred))  
     #print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))  
     #print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
+
+
+  
+#Scatter task correlations between expert and crowd 
+def scatter_correlation_experts(df_task_combined, df_truth, combine_type):
+    
+    
+    df_task_combined = pd.merge(df_task_combined, df_truth, on='task_id', how='outer')    
+    
+    if combine_type == '':
+        key = ''
+    else:
+        key = '_' + combine_type
+        
+    #Get the correlations
+    corr_inner = df_task_combined['inner1'].corr(df_task_combined['inner2'])
+    corr_outer = df_task_combined['outer1'].corr(df_task_combined['outer2'])
+    corr_wap = df_task_combined['wap1'].corr(df_task_combined['wap2'])
+    corr_wtr = df_task_combined['wtr1'].corr(df_task_combined['wtr2'])
+
+    # Plot the areas
+    fig, axes = plt.subplots(nrows=2, ncols=2)
+        
+    ax0 = df_task_combined.plot.scatter(ax=axes[0][0], x='inner1', y='inner1', alpha = 0.3)
+    ax0.set_xlabel('Expert 1')
+    ax0.set_ylabel('Expert 2')  
+    ax0.set_title('Inner airway, corr={:01.3f}'.format(corr_inner))
+    max_data = max(ax0.get_xlim()[1], ax0.get_ylim()[1])
+    ax0.set_xlim(-5, max_data)
+    ax0.set_ylim(-5, max_data)
+    
+      
+    
+    ax1 = df_task_combined.plot.scatter(ax=axes[0][1], x='outer1', y='outer2', alpha = 0.3)
+    ax1.set_xlabel('Expert 1')
+    ax1.set_ylabel('Expert 2')  
+    ax1.set_title('Outer airway, corr={:01.3f}'.format(corr_outer))
+    max_data = max(ax1.get_xlim()[1], ax1.get_ylim()[1])
+    ax1.set_xlim(-5, max_data)
+    ax1.set_ylim(-5, max_data)
+    
+      
+    ax2 = df_task_combined.plot.scatter(ax=axes[1][0], x='wap1',  y='wap2', alpha = 0.3)
+    ax2.set_xlabel('Expert 1')
+    ax2.set_ylabel('Expert 2')  
+    ax2.set_title('WAP, corr={:01.3f}'.format(corr_wap)) #TODO OMG WHY does this print out an extra line
+    max_data = max(ax2.get_xlim()[1], ax2.get_ylim()[1])
+    ax2.set_xlim(-5, max_data)
+    ax2.set_ylim(-5, max_data)
+    
+    ax3 = df_task_combined.plot.scatter(ax=axes[1][1], x='wtr1',  y='wtr2', alpha = 0.3)
+    ax3.set_xlabel('Expert 1')
+    ax3.set_ylabel('Crowd, ' + combine_type)  
+    ax3.set_title('WTR, corr={:01.3f}'.format(corr_wtr)) #TODO OMG WHY does this print out an extra line
+    max_data = max(ax3.get_xlim()[1], ax3.get_ylim()[1])
+    ax3.set_xlim(-0.05, max_data)
+    ax3.set_ylim(-0.05, max_data)
+  
+        
+    sns.despine()
+    
+    fig.tight_layout()
+    fig.savefig(os.path.join(fig_path, 'scatter_experts' + key + '.png'), format="png")
+    #DOESNT WORK
+

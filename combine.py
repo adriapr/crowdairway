@@ -44,8 +44,7 @@ def get_task_random(df_task, df_res):
     task_list = []
 
     for task_id in df_task['task_id']:
-      
-        
+         
         
         task_results = df_res.loc[df_res['task_id'] == task_id]
                 
@@ -125,8 +124,6 @@ def get_task_best(df_task, df_res_valid, df_truth):
        
         
         task_truth = df_truth.loc[df_truth['task_id'] == task_id]
-        
-               
         truth_diff = np.abs(task_results['outer'].to_numpy() - task_truth['outer1'].to_numpy()) #Assumption - selecting based on outer, but could be one of the others
 
         if all(np.isnan(truth_diff)):

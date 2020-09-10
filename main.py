@@ -24,7 +24,7 @@ import combine as crowdcombine
 #Things that are working
 def main():
     
-    #crowdload.process_data()  #This needs to be redone if anything in the preprocessing changes! 
+    crowdload.process_data()  #This needs to be redone if anything in the preprocessing changes! 
     
     # Load all the processed files 
     df_task, df_res, df_annot, df_truth, df_subject = crowdload.get_df_processed() 
@@ -33,11 +33,11 @@ def main():
     df_res_valid, df_res_invalid = crowdcombine.get_valid_results(df_res)
     
     # How many results are there? How many workers are there? ? 
-    crowdanalyze.print_result(df_res_valid, df_res_invalid)
+    #crowdanalyze.print_result(df_res_valid, df_res_invalid)
     
-    crowdanalyze.print_worker(df_res)
-    crowdanalyze.plot_result_worker(df_res_valid)
-    crowdanalyze.scatter_worker_valid(df_res_valid, df_res_invalid)
+    #crowdanalyze.print_worker(df_res)
+    #crowdanalyze.plot_result_worker(df_res_valid)
+    #crowdanalyze.scatter_worker_valid(df_res_valid, df_res_invalid)
     
     
     #Combine results per task in different ways, first, pick a random result
@@ -46,12 +46,12 @@ def main():
     
     
     #Combine all results per task with median combining
-    df_task_median = crowdcombine.get_task_median(df_task, df_res_valid)
-    crowdanalyze.scatter_correlation_expert_crowd(df_task_median, df_truth, 'median')
+    #df_task_median = crowdcombine.get_task_median(df_task, df_res_valid)
+    #crowdanalyze.scatter_correlation_expert_crowd(df_task_median, df_truth, 'median')
 
     #Select best result per task (optimistically biased, uses ground truth!)
-    df_task_best = crowdcombine.get_task_best(df_task, df_res_valid, df_truth) 
-    crowdanalyze.scatter_correlation_expert_crowd(df_task_best, df_truth, 'best')
+    #df_task_best = crowdcombine.get_task_best(df_task, df_res_valid, df_truth) 
+    #crowdanalyze.scatter_correlation_expert_crowd(df_task_best, df_truth, 'best')
 
 
     #Correlation vs minimum number of available valid results 
@@ -59,13 +59,20 @@ def main():
     #crowdanalyze.plot_correlation_valid(df_task_median, df_truth, 'median')
     #crowdanalyze.plot_correlation_valid(df_task_best, df_truth, 'best')
     
+    #crowdanalyze.plot_subject_correlation(df_subject, df_task_median, df_truth, 'median')
+
+    #crowdanalyze.predict_subject_correlation(df_subject, df_task_median, df_truth, 'median')
     
+    #crowdanalyze.print_subject(df_subject, df_task_median, df_truth, 'median')
+     
+    #crowdanalyze.scatter_correlation_experts(df_task_median, df_truth, 'median')
+     
 
 #Development
 def temp():
         
     
-    crowdload.process_data()  #This needs to be redone if anything in the preprocessing changes! 
+    #crowdload.process_data()  #This needs to be redone if anything in the preprocessing changes! 
         
     # Load all the processed files 
     df_task, df_res, df_annot, df_truth, df_subject = crowdload.get_df_processed() 
@@ -73,13 +80,16 @@ def temp():
     # Select valid results and analyze their statistics
     df_res_valid, df_res_invalid = crowdcombine.get_valid_results(df_res)
     
+    
+    crowdanalyze.scatter_correlation_expert_crowd(df_res_valid, df_truth, '')
+    
     #crowdanalyze.scatter_correlation_expert_crowd(df_res_valid, df_truth, '')
          
     # How many results are there? How many workers are there? ? 
     #crowdanalyze.print_result(df_res_valid, df_res_invalid)
     
     #df_task_random = crowdcombine.get_task_random(df_task, df_res_valid)
-    df_task_median = crowdcombine.get_task_median(df_task, df_res_valid)
+    #df_task_median = crowdcombine.get_task_median(df_task, df_res_valid)
     #df_task_best = crowdcombine.get_task_best(df_task, df_res_valid, df_truth)
    
     #crowdanalyze.predict_subject_correlation(df_subject, df_task_median, df_truth, 'median')
