@@ -49,8 +49,8 @@ def main():
     #crowdanalyze.scatter_correlation_expert_crowd(df_task_median, df_truth, 'median')
 
     #Select best result per task (optimistically biased, uses ground truth!)
-    df_task_best = crowdcombine.get_task_best(df_task, df_res_valid, df_truth) 
-    crowdanalyze.scatter_correlation_expert_crowd(df_task_best, df_truth, 'best')
+    #df_task_best = crowdcombine.get_task_best(df_task, df_res_valid, df_truth) 
+    #crowdanalyze.scatter_correlation_expert_crowd(df_task_best, df_truth, 'best')
 
 
     #Correlation vs minimum number of available valid results 
@@ -62,7 +62,7 @@ def main():
 
     #crowdanalyze.predict_subject_correlation(df_subject, df_task_median, df_truth, 'median')
     
-    #crowdanalyze.print_subject(df_subject, df_task_median, df_truth, 'median')
+    crowdanalyze.print_subject(df_subject, df_task_median, df_truth, 'median')
      
     #crowdanalyze.scatter_correlation_experts(df_task_median, df_truth, 'median')
      
@@ -93,6 +93,22 @@ def temp():
    
     #crowdanalyze.predict_subject_correlation(df_subject, df_task_median, df_truth, 'median')
 
+def debug_low():
+    df_task, df_res, df_annot, df_truth, df_subject = crowdload.get_df_processed()
+    df_res_valid, df_res_invalid = crowdcombine.get_valid_results(df_res)
+    df1 = pd.merge(df_task, df_res_valid, on='subject_id', how='outer')
+    df1 = pd.merge(df_task, df_res_valid, on='task_id', how='outer')
+    
+    #Subject with low WAP/WTR, but OK inner/outer
+    df1 = df1.loc[df1['subject_id'] == 3]
+    df1 = pd.merge(df_task, df_res_valid, on='task_id', how='outer')
+    df2 = df1.loc[df1['subject_id'] == 3]
+    
+    df4 = pd.merge(df2, df_truth, on='task_id', how='outer')
+    df4.plot.scatter('inner1','inner_median')
+    df4.plot.scatter('inner1','inner')
+    df4.plot.scatter('outer1','outer')
+    df4.plot.scatter('wap1','wap')
     
     
     

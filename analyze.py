@@ -237,7 +237,7 @@ def plot_correlation_valid(df_task_combined, df_truth, combine_type):
     
     key = '_' + combine_type
         
-    minimum_results = np.arange(1,11)
+    minimum_results = np.arange(1,19)
     n_min = len(minimum_results)
     corr_inner = np.zeros(n_min)
     corr_outer = np.zeros(n_min)
@@ -249,13 +249,15 @@ def plot_correlation_valid(df_task_combined, df_truth, combine_type):
     for idx, m in enumerate(minimum_results):
     
         df_task_subset = df_task_combined.loc[df_task_combined['num_combined']>=m]
-    
         corr_inner[idx] = df_task_subset['inner1'].corr(df_task_subset['inner' + key])
         corr_outer[idx] = df_task_subset['outer1'].corr(df_task_subset['outer' + key])
         corr_WTR[idx] = df_task_subset['wtr1'].corr(df_task_subset['wtr' + key])
         corr_WAP[idx] = df_task_subset['wap1'].corr(df_task_subset['wap' + key])
         num_tasks[idx] = df_task_subset['task_id'].count()
            
+    print(num_tasks)
+    print(corr_inner)    
+        
     fig, ax1 = plt.subplots()
     
     color = 'tab:red'
@@ -265,6 +267,7 @@ def plot_correlation_valid(df_task_combined, df_truth, combine_type):
     ax1.plot(minimum_results, corr_inner, label='Inner',  color=color, linestyle='-')
     ax1.plot(minimum_results, corr_WAP, label='WAP',  color='k', linestyle=':')
     ax1.plot(minimum_results, corr_WTR, label='WTR',  color='k', linestyle='-.')
+    ax1.set_xticks(minimum_results)
     ax1.tick_params(axis='y', labelcolor=color)
     ax1.legend(loc='lower left')
     ax1.set_ylim(0,1)
@@ -390,6 +393,8 @@ def print_subject(df_subject, df_task_combined, df_truth, combine_type):
     df_corr = pd.merge(df_subject, df_corr, on='subject_id', how='outer')    
     
     df_select = df_corr[['subject_id', 'has_cf', 'FVC1_ppred', 'FEV1_ppred', 'n', 'inner1_inner', 'outer1_outer', 'wap1_wap', 'wtr1_wtr']]
+
+    
 
     print(df_select.to_latex(float_format="%.2f"))
     
@@ -566,3 +571,19 @@ def scatter_correlation_experts(df_task_combined, df_truth, combine_type):
     fig.savefig(os.path.join(fig_path, 'scatter_experts' + key + '.png'), format="png")
     #DOESNT WORK
 
+def debug_low():
+    df_task, df_res, df_annot, df_truth, df_subject = crowdload.get_df_processed()
+    df_res_valid, df_res_invalid = crowdcombine.get_valid_results(df_res)
+    df1 = pd.merge(df_task, df_res_valid, on='subject_id', how='outer')
+    df1 = pd.merge(df_task, df_res_valid, on='task_id', how='outer')
+    
+    #Subject with low WAP/WTR, but OK inner/outer
+    df1 = df1.loc[df1['subject_id'] == 3]
+    df1 = pd.merge(df_task, df_res_valid, on='task_id', how='outer')
+    df2 = df1.loc[df1['subject_id'] == 3]
+    
+    df4 = pd.merge(df2, df_truth, on='task_id', how='outer')
+    df4.plot.scatter('inner1','inner_median')
+    df4.plot.scatter('inner1','inner')
+    df4.plot.scatter('outer1','outer')
+    df4.plot.scatter('wap1','wap')
