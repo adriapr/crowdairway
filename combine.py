@@ -124,8 +124,14 @@ def get_task_best(df_task, df_res_valid, df_truth):
        
         
         task_truth = df_truth.loc[df_truth['task_id'] == task_id]
-        truth_diff = np.abs(task_results['outer'].to_numpy() - task_truth['outer1'].to_numpy()) #Assumption - selecting based on outer, but could be one of the others
+        
+        # Measuring best by sum of absolute differences of inner and outer airways 
+        outer_diff = np.abs(task_results['outer'].to_numpy() - task_truth['outer1'].to_numpy()) 
+        inner_diff = np.abs(task_results['inner'].to_numpy() - task_truth['inner1'].to_numpy()) 
 
+        truth_diff = outer_diff + inner_diff
+        
+        
         if all(np.isnan(truth_diff)):
             outer_best = np.nan
             inner_best = np.nan

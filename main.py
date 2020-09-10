@@ -17,14 +17,13 @@ from parse import *
 import load_data as crowdload
 
 
-
 import analyze as crowdanalyze
 import combine as crowdcombine
 
 #Things that are working
 def main():
     
-    crowdload.process_data()  #This needs to be redone if anything in the preprocessing changes! 
+    #crowdload.process_data()  #This needs to be redone if anything in the preprocessing changes! 
     
     # Load all the processed files 
     df_task, df_res, df_annot, df_truth, df_subject = crowdload.get_df_processed() 
@@ -41,17 +40,17 @@ def main():
     
     
     #Combine results per task in different ways, first, pick a random result
-    df_task_random = crowdcombine.get_task_random(df_task, df_res_valid)
-    crowdanalyze.scatter_correlation_expert_crowd(df_task_random, df_truth, 'random')
+    #df_task_random = crowdcombine.get_task_random(df_task, df_res_valid)
+    #crowdanalyze.scatter_correlation_expert_crowd(df_task_random, df_truth, 'random')
     
     
     #Combine all results per task with median combining
-    #df_task_median = crowdcombine.get_task_median(df_task, df_res_valid)
+    df_task_median = crowdcombine.get_task_median(df_task, df_res_valid)
     #crowdanalyze.scatter_correlation_expert_crowd(df_task_median, df_truth, 'median')
 
     #Select best result per task (optimistically biased, uses ground truth!)
-    #df_task_best = crowdcombine.get_task_best(df_task, df_res_valid, df_truth) 
-    #crowdanalyze.scatter_correlation_expert_crowd(df_task_best, df_truth, 'best')
+    df_task_best = crowdcombine.get_task_best(df_task, df_res_valid, df_truth) 
+    crowdanalyze.scatter_correlation_expert_crowd(df_task_best, df_truth, 'best')
 
 
     #Correlation vs minimum number of available valid results 
