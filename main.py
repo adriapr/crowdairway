@@ -78,7 +78,7 @@ def temp():
     
     # Select valid results and analyze their statistics
     df_res_valid, df_res_invalid = crowdcombine.get_valid_results(df_res)
-    
+    crowdanalyze.print_result(df_res_valid, df_res_invalid)
     
     #crowdanalyze.scatter_correlation_expert_crowd(df_res_valid, df_truth, '')
     
@@ -87,18 +87,12 @@ def temp():
     # How many results are there? How many workers are there? ? 
     #crowdanalyze.print_result(df_res_valid, df_res_invalid)
     
-    df_task_random = crowdcombine.get_task_random(df_task, df_res_valid)
-    df_task_median = crowdcombine.get_task_median(df_task, df_res_valid)
-    df_task_best = crowdcombine.get_task_best(df_task, df_res_valid, df_truth)
+    #df_task_random = crowdcombine.get_task_random(df_task, df_res_valid)
+    #df_task_median = crowdcombine.get_task_median(df_task, df_res_valid)
+    #df_task_best = crowdcombine.get_task_best(df_task, df_res_valid, df_truth)
     
-    crowdanalyze.scatter_correlation_all(df_task_random, df_task_median, df_task_best, df_truth)
+    #crowdanalyze.scatter_correlation_all(df_task_random, df_task_median, df_task_best, df_truth)
     
-    #crowdanalyze.scatter_correlation_by_part(df_task_random, df_task_median, df_task_best, df_truth, 'inner')
-    #crowdanalyze.scatter_correlation_by_part(df_task_random, df_task_median, df_task_best, df_truth, 'outer')
-    #crowdanalyze.scatter_correlation_by_part(df_task_random, df_task_median, df_task_best, df_truth, 'wap')
-    #crowdanalyze.scatter_correlation_by_part(df_task_random, df_task_median, df_task_best, df_truth, 'wtr')
-   
-    #crowdanalyze.predict_subject_correlation(df_subject, df_task_median, df_truth, 'median')
 
 def debug_low():
     df_task, df_res, df_annot, df_truth, df_subject = crowdload.get_df_processed()

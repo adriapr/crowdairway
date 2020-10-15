@@ -42,7 +42,7 @@ def print_result(df_res_valid, df_res_invalid):
     print('Valid ' + str(num_valid))
     print('Invalid ' + str(num_invalid))
     
-    print('Invalid % {0:.{1}f} '.format(num_invalid / num_total * 100, 1))
+    print('Invalid + excluded % {0:.{1}f} '.format(num_invalid / num_total * 100, 1))
     print('Invalid % preliminary {0:.{1}f} '.format(610/900*100, 1))
     
     
@@ -69,8 +69,8 @@ def print_result(df_res_valid, df_res_invalid):
     
     print('Only one annotation (did not see airway or did not read): ' + str(val2))
     print('Two ore more annotations, but did not read instructions: ' + str(val3+val4+val5))
-    print('Excluded for simpler analysis: ' + str(val6))
-
+    print('Excluded for simpler analysis: ' + str(val6 / num_total * 100))
+    print('Truly invalid: ' + str( (num_invalid - val6) / num_total * 100))
 
 
 #Print statistics about workers
