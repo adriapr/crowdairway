@@ -229,6 +229,165 @@ def scatter_correlation_expert_crowd(df_task_combined, df_truth, combine_type):
 
 
 
+   
+    
+#Scatter task correlations between expert and crowd 
+def scatter_correlation_by_part(df_random, df_median, df_best, df_truth, part):
+    
+    
+    df_random = pd.merge(df_random, df_truth, on='task_id', how='outer')    
+    df_median = pd.merge(df_median, df_truth, on='task_id', how='outer')
+    df_best = pd.merge(df_best, df_truth, on='task_id', how='outer')
+    
+        
+    #Get the correlations - TODO ideally we should have a method that does all combining at once
+    
+    corr1 = df_random[part+ '1'].corr(df_random[part+'_random'])
+    corr2 = df_median[part+ '1'].corr(df_median[part+'_median'])
+    corr3 = df_best[part+ '1'].corr(df_best[part+'_best'])
+    corr4 = df_best[part+ '1'].corr(df_best[part+'2'])
+  
+    # Plot the areas
+    fig, axes = plt.subplots(nrows=2, ncols=2)
+        
+    ax0 = df_random.plot.scatter(ax=axes[0][0], x=part+'1', y=part+'_random', alpha = 0.3)
+    ax0.set_xlabel('Expert 1')
+    ax0.set_ylabel('Crowd random')  
+    
+    t = part + ', corr={:01.3f}'.format(corr1)
+    print(t)
+    ax0.set_title(t)
+  
+    
+    ax1 = df_median.plot.scatter(ax=axes[0][1], x=part+'1', y=part+'_median', alpha = 0.3)
+    ax1.set_xlabel('Expert 1')
+    ax1.set_ylabel('Crowd median')  
+    t = part + ', corr={:01.3f}'.format(corr2)
+    ax1.set_title(t)
+    print(t)
+    max_data = max(ax1.get_xlim()[1], ax1.get_ylim()[1])
+    ax1.set_xlim(-5, max_data)
+    ax1.set_ylim(-5, max_data)
+    
+      
+    ax2 = df_best.plot.scatter(ax=axes[1][0], x=part+'1',  y=part+'_best', alpha = 0.3)
+    ax2.set_xlabel('Expert 1')
+    ax2.set_ylabel('Crowd best')  
+    t = part + ', corr={:01.3f}'.format(corr3)
+    ax2.set_title(t) 
+    print(t)
+    
+    ax3 = df_best.plot.scatter(ax=axes[1][1], x=part+'1',  y=part+'2', alpha = 0.3)
+    ax3.set_xlabel('Expert 1')
+    ax3.set_ylabel('Expert 2')  
+    t = part + ', corr={:01.3f}'.format(corr4)
+    ax3.set_title(t)
+    print(t)
+    
+    max_x = max(ax0.get_xlim()[1], ax1.get_xlim()[1], ax2.get_xlim()[1], ax3.get_xlim()[1])
+    max_y = max(ax0.get_ylim()[1], ax1.get_ylim()[1], ax2.get_ylim()[1], ax3.get_ylim()[1])
+    
+    ax0.set_xlim(-5, max_x)
+    ax0.set_ylim(-5, max_y)
+    ax1.set_xlim(-5, max_x)
+    ax1.set_ylim(-5, max_y)
+    ax2.set_xlim(-5, max_x)
+    ax2.set_ylim(-5, max_y)
+    ax3.set_xlim(-5, max_x)
+    ax3.set_ylim(-5, max_y)
+    
+    
+    
+    sns.despine()
+    
+    fig.tight_layout()
+    fig.savefig(os.path.join(fig_path, 'scatter_correlation_' + part + '.png'), format="png")
+
+
+
+
+
+  
+#Scatter task correlations between expert and crowd 
+def scatter_correlation_all(df_random, df_median, df_best, df_truth):
+    
+    
+    df_random = pd.merge(df_random, df_truth, on='task_id', how='outer')    
+    df_median = pd.merge(df_median, df_truth, on='task_id', how='outer')
+    df_best = pd.merge(df_best, df_truth, on='task_id', how='outer')
+    
+        
+    ################### - INNER
+    part = 'inner'
+    
+    corr1 = df_random[part+ '1'].corr(df_random[part+'_random'])
+    corr2 = df_median[part+ '1'].corr(df_median[part+'_median'])
+    corr3 = df_best[part+ '1'].corr(df_best[part+'_best'])
+    corr4 = df_best[part+ '1'].corr(df_best[part+'2'])
+  
+    # Plot the areas
+    fig, axes = plt.subplots(nrows=4, ncols=4)
+        
+    plot_row(df_random, df_median, df_best, axes, 0, 'inner')
+    plot_row(df_random, df_median, df_best, axes, 1, 'outer')
+    plot_row(df_random, df_median, df_best, axes, 2, 'wtr')
+    plot_row(df_random, df_median, df_best, axes, 3, 'wap')
+    
+   
+    
+    ################################
+    
+    
+    
+    
+    sns.despine()
+    fig.tight_layout()
+    fig.savefig(os.path.join(fig_path, 'scatter_correlation_all.png'), format="png")
+
+
+def plot_row(df_random, df_median, df_best, axes, rownr, part):
+    
+    alpha = 0.3
+    xkey= part+'1'
+    
+    #df_whatever[xkey] are all identical, should ideally be fixed when combining is done
+    corr1 = df_random[xkey].corr(df_random[part+'_random'])
+    corr2 = df_median[xkey].corr(df_median[part+'_median'])
+    corr3 = df_best[xkey].corr(df_best[part+'_best'])
+    corr4 = df_best[xkey].corr(df_best[part+'2'])
+  
+            
+    ax0 = df_random.plot.scatter(ax=axes[rownr][0], x=part+'1', y=part+'_random', alpha=alpha)
+    #t = '{:01.3f}'.format(corr1)
+    #ax0.set_title(t)
+  
+    
+    ax1 = df_median.plot.scatter(ax=axes[rownr][1], x=part+'1', y=part+'_median', alpha=alpha)
+    #t = '{:01.3f}'.format(corr2)
+    #ax1.set_title(t)
+  
+      
+    ax2 = df_best.plot.scatter(ax=axes[rownr][2], x=part+'1',  y=part+'_best', alpha=alpha)
+    #t =  '{:01.3f}'.format(corr3)
+    #ax2.set_title(t) 
+    
+    ax3 = df_best.plot.scatter(ax=axes[rownr][3], x=part+'1',  y=part+'2', alpha=alpha)
+    #t ='corr={:01.3f}'.format(corr4)
+    #ax3.set_title(t)
+    
+    max_x = max(ax0.get_xlim()[1], ax1.get_xlim()[1], ax2.get_xlim()[1], ax3.get_xlim()[1])
+    max_y = max(ax0.get_ylim()[1], ax1.get_ylim()[1], ax2.get_ylim()[1], ax3.get_ylim()[1])
+    
+    ax0.set_xlim(-5, max_x)
+    ax0.set_ylim(-5, max_y)
+    ax1.set_xlim(-5, max_x)
+    ax1.set_ylim(-5, max_y)
+    ax2.set_xlim(-5, max_x)
+    ax2.set_ylim(-5, max_y)
+    ax3.set_xlim(-5, max_x)
+    ax3.set_ylim(-5, max_y)
+
+
 #Plot the correlation against mininum number of valid results for each task
 def plot_correlation_valid(df_task_combined, df_truth, combine_type):
        
@@ -571,19 +730,3 @@ def scatter_correlation_experts(df_task_combined, df_truth, combine_type):
     fig.savefig(os.path.join(fig_path, 'scatter_experts' + key + '.png'), format="png")
     #DOESNT WORK
 
-def debug_low():
-    df_task, df_res, df_annot, df_truth, df_subject = crowdload.get_df_processed()
-    df_res_valid, df_res_invalid = crowdcombine.get_valid_results(df_res)
-    df1 = pd.merge(df_task, df_res_valid, on='subject_id', how='outer')
-    df1 = pd.merge(df_task, df_res_valid, on='task_id', how='outer')
-    
-    #Subject with low WAP/WTR, but OK inner/outer
-    df1 = df1.loc[df1['subject_id'] == 3]
-    df1 = pd.merge(df_task, df_res_valid, on='task_id', how='outer')
-    df2 = df1.loc[df1['subject_id'] == 3]
-    
-    df4 = pd.merge(df2, df_truth, on='task_id', how='outer')
-    df4.plot.scatter('inner1','inner_median')
-    df4.plot.scatter('inner1','inner')
-    df4.plot.scatter('outer1','outer')
-    df4.plot.scatter('wap1','wap')
