@@ -19,6 +19,8 @@ from sklearn import linear_model
 
 from sklearn.metrics import mean_squared_error, r2_score
 
+import scipy.stats
+
 
 #Path where figures will be stored (TODO put these all in 1 place)
 fig_path ='figures'
@@ -54,8 +56,14 @@ def print_result(df_res_valid, df_res_invalid):
     cond_two = df_res_invalid['num_annot'] == 2
     cond_many = df_res_invalid['num_annot'] >= 3
     
+    cond_see = df_res_invalid['cantsee'] == True
+    
     # Not inside, not resized, 1 annotation - did not see airway or spam  
     val2 = df_res_invalid['result_id'].loc[~cond_inside & ~cond_resized & cond_one].count()
+    
+    val22 = df_res_invalid['result_id'].loc[cond_see].count()
+    
+    
     
     # Not inside and not resized, 2+ annotations - probably tried to annotate
     val3 = df_res_invalid['result_id'].loc[~cond_inside & ~cond_resized & (cond_two | cond_many)].count()
@@ -68,6 +76,7 @@ def print_result(df_res_valid, df_res_invalid):
     val6 = df_res_invalid['result_id'].loc[cond_inside & cond_resized & ~cond_two].count()
     
     print('Only one annotation (did not see airway or did not read): ' + str(val2))
+    print('Did not see airway: ' + str(val22))
     print('Two ore more annotations, but did not read instructions: ' + str(val3+val4+val5))
     print('Excluded for simpler analysis: ' + str(val6 / num_total * 100))
     print('Truly invalid: ' + str( (num_invalid - val6) / num_total * 100))
@@ -287,14 +296,18 @@ def scatter_correlation_by_part(df_random, df_median, df_best, df_truth, part):
     max_x = max(ax0.get_xlim()[1], ax1.get_xlim()[1], ax2.get_xlim()[1], ax3.get_xlim()[1])
     max_y = max(ax0.get_ylim()[1], ax1.get_ylim()[1], ax2.get_ylim()[1], ax3.get_ylim()[1])
     
-    ax0.set_xlim(-5, max_x)
-    ax0.set_ylim(-5, max_y)
-    ax1.set_xlim(-5, max_x)
-    ax1.set_ylim(-5, max_y)
-    ax2.set_xlim(-5, max_x)
-    ax2.set_ylim(-5, max_y)
-    ax3.set_xlim(-5, max_x)
-    ax3.set_ylim(-5, max_y)
+    offset = -5
+    if part=='wtr':
+        offset = -0.05
+    
+    ax0.set_xlim(offset, max_x)
+    ax0.set_ylim(offset, max_y)
+    ax1.set_xlim(offset, max_x)
+    ax1.set_ylim(offset, max_y)
+    ax2.set_xlim(offset, max_x)
+    ax2.set_ylim(offset, max_y)
+    ax3.set_xlim(offset, max_x)
+    ax3.set_ylim(offset, max_y)
     
     
     
@@ -337,9 +350,6 @@ def scatter_correlation_all(df_random, df_median, df_best, df_truth):
     
     ################################
     
-    
-    
-    
     sns.despine()
     fig.tight_layout()
     fig.savefig(os.path.join(fig_path, 'scatter_correlation_all.png'), format="png")
@@ -378,14 +388,18 @@ def plot_row(df_random, df_median, df_best, axes, rownr, part):
     max_x = max(ax0.get_xlim()[1], ax1.get_xlim()[1], ax2.get_xlim()[1], ax3.get_xlim()[1])
     max_y = max(ax0.get_ylim()[1], ax1.get_ylim()[1], ax2.get_ylim()[1], ax3.get_ylim()[1])
     
-    ax0.set_xlim(-5, max_x)
-    ax0.set_ylim(-5, max_y)
-    ax1.set_xlim(-5, max_x)
-    ax1.set_ylim(-5, max_y)
-    ax2.set_xlim(-5, max_x)
-    ax2.set_ylim(-5, max_y)
-    ax3.set_xlim(-5, max_x)
-    ax3.set_ylim(-5, max_y)
+    offset = -5
+    if part=='wtr':
+        offset = -0.05
+    
+    ax0.set_xlim(offset, max_x)
+    ax0.set_ylim(offset, max_y)
+    ax1.set_xlim(offset, max_x)
+    ax1.set_ylim(offset, max_y)
+    ax2.set_xlim(offset, max_x)
+    ax2.set_ylim(offset, max_y)
+    ax3.set_xlim(offset, max_x)
+    ax3.set_ylim(offset, max_y)
 
 
 #Plot the correlation against mininum number of valid results for each task
@@ -633,8 +647,8 @@ def plot_subject_correlation(df_subject, df_task_combined, df_truth, combine_typ
     
     
      
-#Scatter correlations per subject, while displaying subject characteristics
-def predict_subject_correlation(df_subject, df_task_combined, df_truth, combine_type):
+#Print correlations between subject characteristics
+def print_subject_correlation(df_subject, df_task_combined, df_truth, combine_type):
   
         
     df_corr = get_subject_correlation(df_subject, df_task_combined, df_truth, combine_type)
@@ -645,34 +659,47 @@ def predict_subject_correlation(df_subject, df_task_combined, df_truth, combine_
     
     df_corr = pd.merge(df_corr, df_truth_subject[['generation']], on='subject_id', how='outer')
     
-    X = df_corr[['has_cf', 'FVC1_ppred', 'FEV1_ppred', 'n', 'generation']]
-    y = df_corr['inner1_inner']
     
-    lm = linear_model.LinearRegression()
-    model = lm.fit(X,y)
+    #scipy.stats.pearsonr(x, y)    
+    #scipy.stats.spearmanr(x, y)
     
-    predictions = lm.predict(X)
+    [corr_cf, p_cf] = scipy.stats.spearmanr(df_corr['inner1_inner'], df_corr['has_cf'])
+    [corr_generation, p_generation] = scipy.stats.spearmanr(df_corr['inner1_inner'], df_corr['generation'])
+    [corr_fvc, p_fvc] = scipy.stats.spearmanr(df_corr['inner1_inner'], df_corr['FVC1_ppred'])
+    [corr_fev, p_fev] = scipy.stats.spearmanr(df_corr['inner1_inner'], df_corr['FEV1_ppred'])
+    [corr_n, p_n] = scipy.stats.spearmanr(df_corr['inner1_inner'], df_corr['n'])
     
+    
+    
+    X = df_corr[['inner1_inner', 'has_cf', 'FVC1_ppred', 'FEV1_ppred', 'n', 'generation']]
+  
+    print(X.corr())
       
+    print(corr_cf)
+    print(corr_generation)
     
-    # The coefficients
-    print('Coefficients: \n', lm.coef_)
-    # The mean squared error
-    print('Mean squared error: %.2f', mean_squared_error(y, predictions))
-    # The coefficient of determination: 1 is perfect prediction
-    print('Coefficient of determination: %.2f', r2_score(y, predictions))
-
-    #print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, y_pred))  
-    #print('Mean Squared Error:', metrics.mean_squared_error(y_test, y_pred))  
-    #print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
+    print('Has CF: {:01.3f}, p={:01.3f}'.format(corr_cf, p_cf))
+    print('Generation: {:01.3f}, p={:01.3f}'.format(corr_generation, p_generation))
+    print('FVC CF: {:01.3f}, p={:01.3f}'.format(corr_fvc, p_fvc))
+    print('FEV: {:01.3f}, p={:01.3f}'.format(corr_fev, p_fev))
+    print('Number airways: {:01.3f}, p={:01.3f}'.format(corr_n, p_n))
 
 
   
 #Scatter task correlations between expert and crowd 
 def scatter_correlation_experts(df_task_combined, df_truth, combine_type):
     
+    ## First remove the rows for which the crowd has no result, so we compare the same samples    
+  
+    #Remove columns that are duplicated otherwise
+    df_truth = df_truth.drop(['subject_id', 'airway_id'], axis=1)
     
-    df_task_combined = pd.merge(df_task_combined, df_truth, on='task_id', how='outer')    
+    #Remove airways that were not in the experiments
+    df_truth = df_truth.loc[df_truth['task_id'].isin(df_task_combined['task_id'])]
+    df_task_combined = pd.merge(df_task_combined, df_truth, on='task_id', how='outer')   
+    
+    #How many tasks actually have combined results (some might have 0 valid)
+    num_corr = df_task_combined['outer_' + combine_type].count()
     
     if combine_type == '':
         key = ''
@@ -684,9 +711,13 @@ def scatter_correlation_experts(df_task_combined, df_truth, combine_type):
     corr_outer = df_task_combined['outer1'].corr(df_task_combined['outer2'])
     corr_wap = df_task_combined['wap1'].corr(df_task_combined['wap2'])
     corr_wtr = df_task_combined['wtr1'].corr(df_task_combined['wtr2'])
+    
+ 
 
     # Plot the areas
     fig, axes = plt.subplots(nrows=2, ncols=2)
+    
+    fig.suptitle('n = ' + str(num_corr))
         
     ax0 = df_task_combined.plot.scatter(ax=axes[0][0], x='inner1', y='inner1', alpha = 0.3)
     ax0.set_xlabel('Expert 1')

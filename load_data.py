@@ -275,7 +275,14 @@ def get_result_properties(res, df_annot):
 
     inside = annot_inside.all()
 
-   
+
+    # Is the person clicking the top right corner (20% of image by width/height), indicating "don't see airway?"
+    cantsee = False
+    if num_annot == 1:
+        a = annotations.iloc[0]['centre_x']
+        b = annotations.iloc[0]['centre_y']
+        cantsee = (a > 400) & (b < 100) 
+       
     # Have ellipses been resized? 
     resized_annot = (annotations['major_ax'] - annotations['minor_ax'] > 0.0001) 
     resized = resized_annot.all()
@@ -292,7 +299,7 @@ def get_result_properties(res, df_annot):
         wap = np.nan
         wtr = np.nan
     
-    return pd.Series({'num_annot': num_annot,'inside': inside, 'resized': resized, 'outer': outer, 'inner': inner,  'wap': wap, 'wtr': wtr})
+    return pd.Series({'num_annot': num_annot, 'cantsee': cantsee, 'inside': inside, 'resized': resized, 'outer': outer, 'inner': inner,  'wap': wap, 'wtr': wtr})
 
 
 
