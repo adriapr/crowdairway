@@ -12,7 +12,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-from skimage import draw
+import matplotlib.image as mpimg 
+
 from zipfile import ZipFile
 
 

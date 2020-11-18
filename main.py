@@ -13,15 +13,15 @@ import figures as crowdfigures
 import tables as crowdtables
 
 
-#Whether to import/process all data again
-process_data = False
-
-
 #####################
 # Data
 #####################
 
-if process_data:
+# Process data and save the processed data frames. This only needs to be done if the preprocessing code changes
+use_processed_data = True
+
+# Process data and save the proce
+if use_processed_data == False:
     crowddata.process_data()  
     
 # Load all the processed files 
@@ -41,7 +41,8 @@ df_task_median = crowdanalysis.get_task_median(df_task, df_res_valid)
 df_task_best = crowdanalysis.get_task_best(df_task, df_res_valid, df_truth) #optimistically biased!
 
 
-# From here on, medium combining is selected where only combining method is used
+# From here on, medium combining is selected where only combining method is used. 
+# TODO this should be handled by a single variable
 df_task_combined = df_task_median
 combine_type = 'median'
 
