@@ -30,7 +30,8 @@ def show_task(df_task, *args, **kwargs):
     subject_id = kwargs.get('subject_id', None)
     airway_id = kwargs.get('airway_id', None)
     
-    assert task_id != None & (subject_id != None | airway_id != None), "Please specify either only task_id, or subject_id AND airway_id"
+    # TODO this can be a lot neater in how potential errors are handled
+    #assert (task_id != None) | ((subject_id == None) & (airway_id == None)), "Please specify either only task_id, or subject_id AND airway_id"
 
 
     if task_id != None:    
@@ -40,6 +41,12 @@ def show_task(df_task, *args, **kwargs):
            
         subject_id = df['subject_id'].values[0]  #TODO also need to handle what happens if task_id isn't in the data
         airway_id =  df['airway_id'].values[0]
+        
+    else:
+        df = df_task.loc[df_task['subject_id'] == subject_id]
+        df = df.loc[df['airway_id'] == airway_id]
+        task_id =  df['task_id'].values[0]
+        
         
     
     task_file = 'data({}).airways({}).viewpoints(1).png'.format(subject_id, airway_id)
