@@ -24,11 +24,13 @@ zip_path = os.path.join('data','tasks.zip')
 
 
 
-def show_task(df_task, *args, **kwargs):
+def show_task(df_task, df_res, df_annot, *args, **kwargs):
     
     task_id = kwargs.get('task_id', None)
     subject_id = kwargs.get('subject_id', None)
     airway_id = kwargs.get('airway_id', None)
+    result_index = kwargs.get('result_index', None)
+    
     
     # TODO this can be a lot neater in how potential errors are handled
     #assert (task_id != None) | ((subject_id == None) & (airway_id == None)), "Please specify either only task_id, or subject_id AND airway_id"
@@ -58,9 +60,27 @@ def show_task(df_task, *args, **kwargs):
             plt.imshow(im, cmap="gray")
             plt.title('task {}, subject {}, airway {}'.format(task_id, subject_id, airway_id))
       
+    if result_index != None:
+        res = df_res.loc[df_res['task_id'] == task_id].reset_index()
+        result_id = res['result_id'][result_index]
+        
+        annot = df_annot.loc[df_annot['result_id'] == result_id]
+        
+        #Display everything
+        ax = plt.gca()  
+           
+        for (index,a) in annot.iterrows():
+        
+            ell_patch, vertices = crowdload.get_ellipse_patch_vertices(a)
+            ell_patch.set_edgecolor('#6699FF')
+            ell_patch.set_linewidth(3)
+            ax.add_patch(ell_patch)
+            
+        plt.xlabel('result {}'.format(result_id))
+        plt.show()
+            
 
-
-# Show all annotations of the same result
+# Show all annotations of the same result - TODO unused, to be removed
 def show_result(df_task, df_res, df_annot, result_id):
 
     #Select corresponding result
@@ -74,7 +94,7 @@ def show_result(df_task, df_res, df_annot, result_id):
     #Display everything
     ax = plt.gca()  
     
-    show_task(task_id, df_task)
+    show_task(df_task, task_id)
     
 
     for (index,a) in annot.iterrows():
