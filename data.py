@@ -281,10 +281,10 @@ def get_result_properties(res, df_annot):
     if num_annot == 1:
         a = annotations.iloc[0]['centre_x']
         b = annotations.iloc[0]['centre_y']
-        cantsee = (a > 400) & (b < 100) 
+        cantsee = (a > 400) & (b < 100)      #Based on image of 500x500
        
     # Have ellipses been resized? 
-    resized_annot = (annotations['major_ax'] - annotations['minor_ax'] > 0.0001) 
+    resized_annot = (annotations['major_ax'] - annotations['minor_ax'] > 0.0001) #Some small tolerance for rounding errors
     resized = resized_annot.all()
     
     # Assume only results with a single pair are used 

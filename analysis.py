@@ -8,14 +8,7 @@ Created on Fri May 15 16:10:55 2020
 import pandas as pd
 import numpy as np
 
-from matplotlib.patches import Ellipse
-import matplotlib.pyplot as plt
-import random
-
-from skimage import draw
-from parse import *
-
-import load_data as crowdload
+import data as crowddata
 
 # Define how to combine multiple results per task 
 
@@ -53,8 +46,8 @@ def get_task_random(df_task, df_res):
             num_combined = len(task_results)
             outer_random = res_random['outer'].to_numpy()[0]
             inner_random = res_random['inner'].to_numpy()[0]
-            wap_random = crowdload.compute_wap(inner_random,outer_random) 
-            wtr_random = crowdload.compute_wtr(inner_random,outer_random) 
+            wap_random = crowddata.compute_wap(inner_random,outer_random) 
+            wtr_random = crowddata.compute_wtr(inner_random,outer_random) 
         else:
             num_combined = 0
             outer_random = np.nan
@@ -98,8 +91,8 @@ def get_task_median(df_task, df_res):
                     'num_combined': len(task_results),
                     'outer_median': outer_median,
                     'inner_median': inner_median,
-                    'wap_median': crowdload.compute_wap(inner_median,outer_median),
-                    'wtr_median': crowdload.compute_wtr(inner_median,outer_median),
+                    'wap_median': crowddata.compute_wap(inner_median,outer_median),
+                    'wtr_median': crowddata.compute_wtr(inner_median,outer_median),
                     }
         task_list.append(task_dict)
        
@@ -143,8 +136,8 @@ def get_task_best(df_task, df_res_valid, df_truth):
             res_best = task_results.iloc[ix_res_best]
             outer_best = res_best['outer']
             inner_best = res_best['inner']   
-            wap_best = crowdload.compute_wap(inner_best,outer_best)
-            wtr_best = crowdload.compute_wtr(inner_best,outer_best)
+            wap_best = crowddata.compute_wap(inner_best,outer_best)
+            wtr_best = crowddata.compute_wtr(inner_best,outer_best)
             num_combined = np.sum(~np.isnan(truth_diff))
         
     
@@ -159,8 +152,45 @@ def get_task_best(df_task, df_res_valid, df_truth):
         task_list.append(task_dict)
       
     df_task = pd.DataFrame(task_list)
-        
-    #df_task = pd.merge(df_task, df_truth, on='task_id', how='outer')    
-    
+     
     return df_task
 
+
+
+def get_subject_correlation(df_subject, df_task_combined, df_truth, combine_type=''):
+
+    
+    cols_to_use = ['task_id', 'inner1', 'outer1', 'wap1', 'wtr1']
+    
+    df_task_combined = pd.merge(df_task_combined, df_truth[cols_to_use], on='task_id', how='outer')
+ 
+         
+    key = '_' + combine_type
+   
+    subject_ids = df_subject['subject_id'].unique()
+    corr_list = []
+    
+    for idx, subject_id in enumerate(subject_ids):
+    
+        subject_tasks = df_task_combined.loc[df_task_combined['subject_id'] == subject_id]
+           
+        n = len(subject_tasks['subject_id'])
+        inner1_inner = subject_tasks['inner1'].corr(subject_tasks['inner' + key])
+        outer1_outer = subject_tasks['outer1'].corr(subject_tasks['outer' + key])
+        wap1_wap = subject_tasks['wap1'].corr(subject_tasks['wap' + key])
+        wtr1_wtr = subject_tasks['wtr1'].corr(subject_tasks['wtr' + key])
+        
+    
+        corr_dict = {
+            'n': n,
+            'subject_id': subject_id,
+            'inner1_inner': inner1_inner,
+            'outer1_outer': outer1_outer,
+            'wap1_wap': wap1_wap,
+            'wtr1_wtr': wtr1_wtr,
+            }
+        corr_list.append(corr_dict)  
+     
+    df_corr = pd.DataFrame(corr_list)
+    
+    return df_corr
