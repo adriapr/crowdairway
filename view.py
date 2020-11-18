@@ -22,14 +22,25 @@ import load_data as crowdload
 zip_path = os.path.join('data','tasks.zip')
 
 
-def show_task(task_id, df_task):
+
+
+def show_task(df_task, *args, **kwargs):
     
-    #Select corresponding task from data frame
-    df = df_task.loc[df_task['task_id'] == task_id]
-       
-    subject_id = df['subject_id'].values[0]  #TODO also need to handle what happens if task_id doesn't exist
-    airway_id =  df['airway_id'].values[0]
+    task_id = kwargs.get('task_id', None)
+    subject_id = kwargs.get('subject_id', None)
+    airway_id = kwargs.get('airway_id', None)
     
+    assert task_id != None & (subject_id != None | airway_id != None), "Please specify either only task_id, or subject_id AND airway_id"
+
+
+    if task_id != None:    
+        
+        #Select corresponding task from data frame
+        df = df_task.loc[df_task['task_id'] == task_id]
+           
+        subject_id = df['subject_id'].values[0]  #TODO also need to handle what happens if task_id isn't in the data
+        airway_id =  df['airway_id'].values[0]
+        
     
     task_file = 'data({}).airways({}).viewpoints(1).png'.format(subject_id, airway_id)
         
@@ -43,7 +54,7 @@ def show_task(task_id, df_task):
 
 
 # Show all annotations of the same result
-def show_result(result_id, df_task, df_res, df_annot):
+def show_result(df_task, df_res, df_annot, result_id):
 
     #Select corresponding result
     res = df_res.loc[df_res['result_id'] == result_id].reset_index()
