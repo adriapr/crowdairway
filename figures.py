@@ -1,42 +1,43 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu May 14 18:16:34 2020
+Functions for printing figures in the paper. 
 
-@authors: vcheplyg, adriapr
+Authors: Veronika Cheplygina, Adria Perez-Rovira
+URL: https://github.com/adriapr/crowdairway
 """
 
 import pandas as pd
 import numpy as np
 import os.path
 import matplotlib.pyplot as plt
-import seaborn as sns
-
-
 import matplotlib.image as mpimg 
-
+import seaborn as sns
 from zipfile import ZipFile
 
 import data as crowddata
-
-
 
 #Path where the task images are stored
 zip_path = os.path.join('data','tasks.zip')
 
 
-#Path where figures will be stored (TODO put these all in 1 place)
+#Path where figures will be stored 
 fig_path ='figures'
 
-#Set general style for plots
+
+
 def set_style():
+    """Set general style for plots"""
+
     sns.set_style("ticks") # style
     sns.set_context("talk") # make things bigger
-
     plt.rcParams['figure.figsize'] = [12, 10] # make figures larger
     
 
-#Show a task, optionally with a result drawn on top of it
 def show_task(df_task, df_res, df_annot, *args, **kwargs):
+    """ Show a task and optionally a result drawn on top of it
+    Required: either task_id, or both subject_id and airway_id
+    Optional: result_index (between 0 and 19) to show the result 
+    """
     
     task_id = kwargs.get('task_id', None)
     subject_id = kwargs.get('subject_id', None)
@@ -90,9 +91,10 @@ def show_task(df_task, df_res, df_annot, *args, **kwargs):
     
 
 
-#Plot number of results, created by number of workers
+
 def plot_result_worker(df_res):
-    
+    """Plot number of results, created by number of workers"""
+        
     res = df_res['result_creator'].value_counts(ascending=True)
         
     x = np.arange(1,len(res))
@@ -113,9 +115,9 @@ def plot_result_worker(df_res):
     
         
     
-#Scatter workers, represented by number of their valid/invalid results   
+
 def scatter_worker_valid(df_res_valid, df_res_invalid):
-    
+    """Scatter workers, represented by number of their valid/invalid results"""
         
     valid_per_worker=df_res_valid.groupby(['result_creator'], as_index=False).count().reset_index()
     num_worker = len(valid_per_worker)
@@ -158,10 +160,10 @@ def scatter_worker_valid(df_res_valid, df_res_invalid):
     #doesn't work
     
     
-      
-#Scatter task correlations between expert and crowd, for a specific measurement (part) 
-def scatter_correlation_by_part(df_random, df_median, df_best, df_truth, part):
    
+
+def scatter_correlation_by_part(df_random, df_median, df_best, df_truth, part):
+    """Scatter task correlations between expert and crowd, for a specific measurement"""
     
     df_random = pd.merge(df_random, df_truth, on='task_id', how='outer')    
     df_median = pd.merge(df_median, df_truth, on='task_id', how='outer')
@@ -237,12 +239,8 @@ def scatter_correlation_by_part(df_random, df_median, df_best, df_truth, part):
 
 
 
-
-
-
-#Plot the correlation against mininum number of valid results for each task
 def plot_correlation_valid(df_task_combined, df_truth, combine_type):
-       
+    """Plot the correlation against mininum number of valid results for each task"""   
     
     df_task_combined = pd.merge(df_task_combined, df_truth, on='task_id', how='outer')
     
@@ -294,7 +292,7 @@ def plot_correlation_valid(df_task_combined, df_truth, combine_type):
     
     fig.tight_layout() 
     fig.savefig(os.path.join(fig_path, 'plot_correlation_valid' + key + '.png'), format="png")
-    #works
+
 
 
     

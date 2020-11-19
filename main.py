@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Steps for reproducible results, similar to the Google Colab notebook
+Main script for reproducing results of the paper "Crowdsourcing Airway Segmentation" 
 
-Created on Wed May 13 11:47:40 2020
+Authors: Veronika Cheplygina, Adria Perez-Rovira
+URL: https://github.com/adriapr/crowdairway
 
-@author: vcheplyg
 """
 
 import data as crowddata
@@ -16,6 +16,7 @@ import tables as crowdtables
 #####################
 # Data
 #####################
+
 
 # Process data and save the processed data frames. This only needs to be done if the preprocessing code changes
 use_processed_data = True

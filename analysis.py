@@ -1,37 +1,36 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri May 15 16:10:55 2020
+analysis.py
 
-@author: vcheplyg
+Decision-making functions on how to filter, combine and analyse crowd results. 
+
+Authors: Veronika Cheplygina, Adria Perez-Rovira
+URL: https://github.com/adriapr/crowdairway
+
+
 """
 
 import pandas as pd
 import numpy as np
-
 import data as crowddata
 
-# Define how to combine multiple results per task 
 
-#Although not combining, there is a decision made on what counts as a valid result
 def get_valid_results(df_res):
+    """Splits up results into valid and invalid results.
+    Based on properties computed in data.py."""
     
-    # Select "easy" valid results (one pair of resized ellipses)
+    # Select valid results (one pair of resized ellipses)
     cond_valid = df_res['inside'] & df_res['resized'] & (df_res['num_annot']==2)
     df_res_valid = df_res.loc[cond_valid]
     
-    # Everything else is invalid 
+    # Everything else is excluded/invalid 
     df_res_invalid =  df_res.loc[~cond_valid]
-    
-    
-    # Add ground truth to valid results - Should not be here to avoid leakage
-    #df_res_valid = pd.merge(df_res_valid, df_truth, on='task_id', how='outer')    
-    
+           
     return df_res_valid, df_res_invalid
 
 
-
-#Select a random result for a task
 def get_task_random(df_task, df_res):
+    """Selects a random result for a task."""
    
        
     task_list = []
@@ -73,8 +72,8 @@ def get_task_random(df_task, df_res):
     return df_task_combined
     
 
-#Combine all the results for a task with median combining
 def get_task_median(df_task, df_res):
+    """Combines all the results for a task using median combining."""
 
     task_list = []
 
@@ -103,10 +102,11 @@ def get_task_median(df_task, df_res):
     return df_task_combined
 
 
-
-#Select the best possible result for a task (optimistically biased!) 
 def get_task_best(df_task, df_res_valid, df_truth):
-
+    """Selects the best possible result for a task, based on the ground truth.
+    Optimistically biased, only for determining upper bound! 
+    """
+    
     task_list = []
 
 
@@ -158,7 +158,7 @@ def get_task_best(df_task, df_res_valid, df_truth):
 
 
 def get_subject_correlation(df_subject, df_task_combined, df_truth, combine_type=''):
-
+    """Returns a dataframe of correlations bewteen the combined crowd and the expert"""
     
     cols_to_use = ['task_id', 'inner1', 'outer1', 'wap1', 'wtr1']
     

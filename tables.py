@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Functions for printing various details about the results
+Functions for printing tables or other text-based results
 
-@authors: vcheplyg, adriapr
+
+Authors: Veronika Cheplygina, Adria Perez-Rovira
+URL: https://github.com/adriapr/crowdairway
+
 """
 
 import pandas as pd
