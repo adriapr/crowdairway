@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg 
 import seaborn as sns
 from zipfile import ZipFile
+import math
 
 import data as crowddata
 
@@ -164,18 +165,23 @@ def scatter_worker_valid(df_res_valid, df_res_invalid):
 
 def scatter_correlation_by_part(df_random, df_median, df_best, df_truth, part):
     """Scatter task correlations between expert and crowd, for a specific measurement"""
-    
+           
+    has_crowd_result = df_median.loc[df_median['num_combined'] > 0]
+    df_truth = df_truth.loc[df_truth['task_id'].isin(has_crowd_result['task_id'])]
+        
     df_random = pd.merge(df_random, df_truth, on='task_id', how='outer')    
     df_median = pd.merge(df_median, df_truth, on='task_id', how='outer')
     df_best = pd.merge(df_best, df_truth, on='task_id', how='outer')
-    
-        
+ 
     #Get the correlations - TODO ideally we should have a method that does all combining at once
     
     corr1 = df_random[part+ '1'].corr(df_random[part+'_random'])
     corr2 = df_median[part+ '1'].corr(df_median[part+'_median'])
     corr3 = df_best[part+ '1'].corr(df_best[part+'_best'])
-    corr4 = df_best[part+ '1'].corr(df_best[part+'2'])
+    corr4 = df_truth[part+ '1'].corr(df_truth[part+'2'])
+    
+    n1 = df_random[part+'_random'].count()
+    print(n1)
   
     # Plot the areas
     fig, axes = plt.subplots(nrows=2, ncols=2)
@@ -207,7 +213,7 @@ def scatter_correlation_by_part(df_random, df_median, df_best, df_truth, part):
     ax2.set_title(t) 
     print(t)
     
-    ax3 = df_best.plot.scatter(ax=axes[1][1], x=part+'1',  y=part+'2', alpha = 0.3)
+    ax3 = df_truth.plot.scatter(ax=axes[1][1], x=part+'1',  y=part+'2', alpha = 0.3)
     ax3.set_xlabel('Expert 1')
     ax3.set_ylabel('Expert 2')  
     t = part + ', corr={:01.3f}'.format(corr4)

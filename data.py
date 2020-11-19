@@ -92,13 +92,13 @@ def compute_wap(inner, outer):
   return (outer - inner) / outer * 100 # wall area percentage
 
 def compute_wtr(inner, outer):
-   """Computes the wall thickness ratio (WTR) from the inner and outer airway measurements."""  
+  """Computes the wall thickness ratio (WTR) from the inner and outer airway measurements."""  
   return ((area_to_diam(outer) - area_to_diam(inner)) / 2) / area_to_diam(outer) 
     
 
 
 def get_df_crowd(results_file):
-    """"Processes the crowd results file to create dataframes for tasks, results and annotations."""
+    """Processes the crowd results file to create dataframes for tasks, results and annotations."""
     
     # Load the raw crowd file 
     with open(results_file) as json_file:
@@ -242,7 +242,6 @@ def get_ellipse_patch_vertices(annotation):
 
     return ell_patch, vertices
 
-lculate several properties of the result's annotations, to be able to later decide if the result is valid or not 
 
 def get_result_properties(res, df_annot):
     """Calculate properties of the result, such as number of ellipses, whether they were resized by the worker etc.
@@ -256,19 +255,19 @@ def get_result_properties(res, df_annot):
     annot_inside = np.zeros(num_annot)
     
     #Check if ellipses are inside each other 
-        for i in range(0, num_annot):
-          mask1 = get_annotation_mask(annotations.iloc[i])
-          for j in range(i+1,num_annot):
-              mask2 = get_annotation_mask(annotations.iloc[j])
+    for i in range(0, num_annot):
+        mask1 = get_annotation_mask(annotations.iloc[i])
+        for j in range(i+1,num_annot):
+            mask2 = get_annotation_mask(annotations.iloc[j])
                       
-              intersection = np.logical_and(mask1, mask2)
+            intersection = np.logical_and(mask1, mask2)
 
-              diff1 = np.logical_xor(mask1,intersection)
-              diff2 = np.logical_xor(mask2,intersection)
+            diff1 = np.logical_xor(mask1,intersection)
+            diff2 = np.logical_xor(mask2,intersection)
               
-              if (np.sum(diff1) == 0)  | (np.sum(diff2) == 0):
-                  annot_inside[i] = annotations.iloc[j]['annotation_id']
-                  annot_inside[j] = annotations.iloc[i]['annotation_id']
+            if (np.sum(diff1) == 0)  | (np.sum(diff2) == 0):
+                annot_inside[i] = annotations.iloc[j]['annotation_id']
+                annot_inside[j] = annotations.iloc[i]['annotation_id']
 
     inside = annot_inside.all()
 
