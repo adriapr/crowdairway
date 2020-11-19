@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed May 13 10:59:52 2020
+Functions for preprocessing the data and crowd results
 
-@author: vcheplyg
+
+Authors: Veronika Cheplygina, Adria Perez-Rovira
+URL: https://github.com/adriapr/crowdairway
+
 """
 
 import json, csv
 import pandas as pd
 import numpy as np
-
 from matplotlib.patches import Ellipse
 import math
-
 from skimage import draw
 from parse import search
-
 import os.path
 
 # Define some constants
@@ -34,6 +34,7 @@ file_task_class = os.path.join(path_raw, 'airways_classified.csv')
 
 
 def get_df_processed():
+    """"Returns data frames with previously processed data"""
     
     df_subject = pd.read_csv(file_subject)
     
@@ -46,9 +47,11 @@ def get_df_processed():
     
     
 
-# This only needs to be run once to get from raw data to processed files (a bit slow)
 def process_data():
     #Load files
+    """Process the raw data from scratch.
+    This may take a couple of minutes.
+    """
    
     results_file = os.path.join(path_raw, 'crowd_results.json')
     df_task, df_res, df_annot = get_df_crowd(results_file)
@@ -63,8 +66,7 @@ def process_data():
     
     df_props = df_res.apply(lambda res: get_result_properties(res, df_annot_ellipse), axis='columns', result_type='expand')
     df_res_props = pd.concat([df_res,df_props],axis=1)
-        
-    
+            
     # Process ground truth  
     print("Starting ground truth...")
     df_truth=pd.read_csv(os.path.join(path_raw, 'airways_ground_truth.csv'))
@@ -72,9 +74,7 @@ def process_data():
     df_truth['wtr1'] = df_truth.apply(lambda row: compute_wtr(row['inner1'], row['outer1']), axis=1)
     df_truth['wap2'] = df_truth.apply(lambda row: compute_wap(row['inner2'], row['outer2']), axis=1)
     df_truth['wtr2'] = df_truth.apply(lambda row: compute_wtr(row['inner2'], row['outer2']), axis=1)
-    
-    
-    
+      
     
     #Write processed files to CSV
     df_annot_ellipse.to_csv(file_annot, index=False, quoting=csv.QUOTE_NONNUMERIC)
@@ -82,27 +82,29 @@ def process_data():
     df_task.to_csv(file_task, index=False, quoting=csv.QUOTE_NONNUMERIC)   
     df_truth.to_csv(file_truth, index=False, quoting=csv.QUOTE_NONNUMERIC)
 
-    
 
-
-# Compute wap and wtr for GT. This should probably be done somewhere else? Ans ussing apply()
-def area_to_diam(a): # This is approxiamte, assuming a circle
+def area_to_diam(a): 
+  """Converts an area to a diameter. Assumes circular airway."""
   return np.sqrt(a * math.pi / 4)
 
 def compute_wap(inner, outer):
+  """Computes the wall area percentage (WAP) from the inner and outer airway measurements."""
   return (outer - inner) / outer * 100 # wall area percentage
 
 def compute_wtr(inner, outer):
-  return ((area_to_diam(outer) - area_to_diam(inner)) / 2) / area_to_diam(outer) # wall area ratio
+   """Computes the wall thickness ratio (WTR) from the inner and outer airway measurements."""  
+  return ((area_to_diam(outer) - area_to_diam(inner)) / 2) / area_to_diam(outer) 
     
 
+
 def get_df_crowd(results_file):
+    """"Processes the crowd results file to create dataframes for tasks, results and annotations."""
     
-    # Process annotations file, creating data frames for tasks, results, and annotations
+    # Load the raw crowd file 
     with open(results_file) as json_file:
         data = json.load(json_file)
     
-    # Load category (airway visibility good/bad) of each task as later annotated by an observer    
+    # Load category (if airway is visible) of each task, as annotated by an observer    
     df_task_class = pd.read_csv(file_task_class)
     
    
@@ -125,17 +127,13 @@ def get_df_crowd(results_file):
         
         short_filename = 'data('+str(parts[0])+').airways('+str(parts[1])+').viewpoints(1).png'
         
-        
-        #print(short_filename)
         #Find category of airway
         task_class = df_task_class['category'].loc[df_task_class['file']==short_filename].values[0]
               
         
         # Only include visible airways 
         if task_class == 'good':
-            
-            
-        
+                    
             task_dict = {
                 'task_id': task_id,
                 'subject_id': parts[0],
@@ -181,8 +179,8 @@ def get_df_crowd(results_file):
 
 
 
-# Extract ellipse measurements (center point, two radii, orientation, area) from one annotation
 def get_annotation_ellipse(annotation):
+    """ Extract ellipse measurements (center point, two radii, orientation, area) from an annotation"""
 
     points = annotation.points
 
@@ -211,7 +209,7 @@ def get_annotation_ellipse(annotation):
     major = np.maximum(radius1,radius2)
     minor = np.minimum(radius1,radius2)
 
-    voxel_size = 0.55  #Actual voxel size is 0.5508 x 0.5508 x 0.6000, assuming equal size for simplicity 
+    voxel_size = 0.55  #Actual voxel size is 0.5508 x 0.5508 x 0.6000, assuming equal size due to small scale  
     image_scaling = 0.1 #Has to do with scaling between exported airway images, and the annotation interface
     scaling = voxel_size*image_scaling
     
@@ -221,8 +219,8 @@ def get_annotation_ellipse(annotation):
     
 
 
-# Convert an annotation (that has been measured) to a masked image
 def get_annotation_mask(annotation):
+    """Get a masked image from an annotation."""
     
     ell_patch = Ellipse((annotation['centre_x'], annotation['centre_x']), 2*annotation['major_ax'], 2*annotation['minor_ax'], annotation['rotation'], edgecolor='red', facecolor='none')
     coords = ell_patch.get_path()
@@ -235,9 +233,8 @@ def get_annotation_mask(annotation):
     return mask
 
 
-
-# Get the drawing coordinates (patch and vertices) from an annotation
 def get_ellipse_patch_vertices(annotation):
+    """Get the drawing coordinates (patch and vertices) from an annotation."""
 
     ell_patch = Ellipse((annotation['centre_x'], annotation['centre_y']), 2*annotation['major_ax'], 2*annotation['minor_ax'], annotation['rotation'], edgecolor='red', facecolor='none')
     coords = ell_patch.get_path()
@@ -245,10 +242,12 @@ def get_ellipse_patch_vertices(annotation):
 
     return ell_patch, vertices
 
-
-# Calculate several properties of the result's annotations, to be able to later decide if the result is valid or not 
+lculate several properties of the result's annotations, to be able to later decide if the result is valid or not 
 
 def get_result_properties(res, df_annot):
+    """Calculate properties of the result, such as number of ellipses, whether they were resized by the worker etc.
+    These properties can be later used to decide if the result is valid.
+    """
 
     annotations = df_annot.loc[df_annot['result_id'] == res['result_id']]
     
@@ -256,9 +255,7 @@ def get_result_properties(res, df_annot):
     num_annot = len(annotations)
     annot_inside = np.zeros(num_annot)
     
-    #Check if ellipses are inside each other - TODO maybe neater to already do this when loading data?
-    
-    if np.mod(num_annot,2) == 0 :
+    #Check if ellipses are inside each other 
         for i in range(0, num_annot):
           mask1 = get_annotation_mask(annotations.iloc[i])
           for j in range(i+1,num_annot):
