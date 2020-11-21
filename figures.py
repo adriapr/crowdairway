@@ -44,6 +44,7 @@ def show_task(df_task, df_res, df_annot, *args, **kwargs):
     subject_id = kwargs.get('subject_id', None)
     airway_id = kwargs.get('airway_id', None)
     result_index = kwargs.get('result_index', None)
+    save_file = kwargs.get('save_file', False)
     
     # TODO need potential error handling, like not existing IDs
    
@@ -68,6 +69,7 @@ def show_task(df_task, df_res, df_annot, *args, **kwargs):
     with ZipFile(zip_path, 'r') as zip: 
         with zip.open(task_file) as myfile:
             im = mpimg.imread(myfile)
+            fig = plt.figure()
             plt.imshow(im, cmap="gray")
             plt.title('task {}, subject {}, airway {}'.format(task_id, subject_id, airway_id))
       
@@ -90,6 +92,10 @@ def show_task(df_task, df_res, df_annot, *args, **kwargs):
         plt.xlabel('result {}'.format(result_id))
         plt.show()    
     
+    if save_file == True:
+        file_name = 'example_{}.png'.format(result_index)
+        fig.tight_layout()
+        fig.savefig(os.path.join(fig_path, file_name), format="png", bbox_inches='tight')
 
 
 

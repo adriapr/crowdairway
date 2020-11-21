@@ -29,6 +29,10 @@ if use_processed_data == False:
 df_task, df_res, df_annot, df_truth, df_subject = crowddata.get_df_processed() 
 
 
+crowdfigures.show_task(df_task, df_res, df_annot, task_id=27, result_index=0, save_file=True) #Valid
+crowdfigures.show_task(df_task, df_res, df_annot, task_id=27, result_index=3, save_file=True) #Invalid - does not see an airway
+crowdfigures.show_task(df_task, df_res, df_annot, task_id=27, result_index=10, save_file=True) #Invalid - unpaired ellipse, not resized
+
 #####################
 # Analysis
 #####################
